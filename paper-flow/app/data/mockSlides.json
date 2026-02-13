@@ -1,0 +1,47 @@
+[
+  {
+    "title": "Introduction and objectives",
+    "speaker_notes": [
+      "set expectations for the session",
+      "brief overview of key themes",
+      "Q&A logistics"
+    ],
+    "est_time": 15
+  },
+  {
+    "title": "Importance of reefs",
+    "speaker_notes": [
+      "protect coastal reefs from storm surges",
+      "provide food and livelihoods",
+      "fostering tourism"
+    ],
+    "est_time": 90
+  },
+  {
+    "title": "Climate impacts on ocean health",
+    "speaker_notes": [
+      "rising sea temperatures and bleaching",
+      "ocean acidification and shell-forming species",
+      "shifts in species distribution"
+    ],
+    "est_time": 75
+  },
+  {
+    "title": "Conservation strategies",
+    "speaker_notes": [
+      "marine protected areas and no-take zones",
+      "community-led monitoring and restoration",
+      "policy and international cooperation"
+    ],
+    "est_time": 60
+  },
+  {
+    "title": "Wrap-up and next steps",
+    "speaker_notes": [
+      "recap main takeaways",
+      "share resources and further reading",
+      "invite feedback and follow-up"
+    ],
+    "est_time": 20
+  }
+]
