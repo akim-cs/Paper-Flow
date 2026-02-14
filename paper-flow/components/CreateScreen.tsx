@@ -1,20 +1,20 @@
 'use client';
 
 import { useState } from 'react';
-import type { Slide } from '../app/types/slides';
-import UploadScreen from './UploadScreen'
+import type { Slide, PresentationConfig } from '../app/types/slides';
+import UploadScreen from './UploadScreen';
+import ConfigScreen from './ConfigScreen';
 import SlidesFlow from './SlidesFlow';
 
 /**
- * Holds slides state and decides whether to show the upload screen or the flow.
+ * Holds slides state and decides whether to show the upload screen, config, or the flow.
+ * Flow: Upload → Config → Timeline
  */
 export default function CreateScreen() {
-
-  // Master state to handle the current slides state
   const [slides, setSlides] = useState<Slide[] | null>(null);
+  const [config, setConfig] = useState<PresentationConfig | null>(null);
 
-  // If no slides have been parsed from a research paper, show upload
-  // to start parsing process
+  // Step 1: Upload screen
   if (slides === null) {
     return (
       <UploadScreen
@@ -25,8 +25,18 @@ export default function CreateScreen() {
     );
   }
 
-  // If slides have been parsed from a research paper,
-  // render the React Flow ordering
+  // Step 2: Config screen
+  if (config === null) {
+    return (
+      <ConfigScreen
+        onConfigComplete={(newConfig) => {
+          setConfig(newConfig);
+        }}
+      />
+    );
+  }
+
+  // Step 3: Timeline flow
   return (
     <SlidesFlow
       slides={slides}
