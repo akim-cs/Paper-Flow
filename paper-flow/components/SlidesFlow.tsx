@@ -164,7 +164,7 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
   );
 
   return (
-    <div className="h-[80vh] w-full rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+    <div className="h-[80vh] w-full rounded-xl border border-paper-flow-border bg-white dark:bg-zinc-950">
       <ReactFlow
         nodes={displayNodes}
         edges={edges}
