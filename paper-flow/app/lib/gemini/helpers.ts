@@ -70,7 +70,7 @@ export async function generateOutline(
   sections: Sections,
   config?: PresentationConfig
 ): Promise<OutlineItem[]> {
-  const promptWithConfig = OUTLINE_PROMPT(JSON.stringify(sections)) +
+  const promptWithConfig = OUTLINE_PROMPT(JSON.stringify(sections), config?.timeLimit) +
     (config
       ? `\nAudience Level: ${config.audienceLevel}\nTime Limit: ${config.timeLimit} minutes`
       : "");
@@ -97,7 +97,7 @@ export async function generateNodes(
   sections: Sections,
   config?: PresentationConfig
 ): Promise<Slide[]>{
-  const promptWithConfig = SLIDES_PROMPT(JSON.stringify(outline), JSON.stringify(sections)) +
+  const promptWithConfig = SLIDES_PROMPT(JSON.stringify(outline), JSON.stringify(sections), config?.timeLimit) +
     (config
       ? `\nAudience Level: ${config.audienceLevel}\nTime Limit: ${config.timeLimit} minutes`
       : "");
