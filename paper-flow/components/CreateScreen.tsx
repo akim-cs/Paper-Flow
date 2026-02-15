@@ -11,26 +11,29 @@ import SlidesFlow from './SlidesFlow';
  * Flow: Upload → Config → Timeline
  */
 export default function CreateScreen() {
+  const [paperId, setPaperId] = useState<string | null>(null);
   const [slides, setSlides] = useState<Slide[] | null>(null);
   const [config, setConfig] = useState<PresentationConfig | null>(null);
 
   // Step 1: Upload screen
-  if (slides === null) {
+  if (!paperId) {
     return (
       <UploadScreen
-        onUploadComplete={(newSlides) => {
-          setSlides(newSlides);
+        onUploadComplete={(newPaperId: string) => {
+          setPaperId(newPaperId);
         }}
       />
     );
   }
 
   // Step 2: Config screen
-  if (config === null) {
+  if (!config) {
     return (
       <ConfigScreen
-        onConfigComplete={(newConfig) => {
-          setConfig(newConfig);
+        paperId={paperId}
+        onComplete={(userConfig, generatedSlides) => {
+          setConfig(userConfig)
+          setSlides(generatedSlides);
         }}
       />
     );
@@ -39,7 +42,7 @@ export default function CreateScreen() {
   // Step 3: Timeline flow
   return (
     <SlidesFlow
-      slides={slides}
+      slides={slides || []}
       onSlidesChange={(newSlides) => setSlides(newSlides)}
     />
   );

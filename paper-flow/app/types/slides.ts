@@ -14,3 +14,23 @@ export type PresentationConfig = {
   audienceLevel: 'beginner' | 'intermediate' | 'expert';
   timeLimit: number; // minutes
 };
+
+/**
+ * Outline structure for Gemini
+ */
+export interface OutlineItem {
+  title: string
+  source_section: 'abstract' | 'introduction' | 'methodology' | 'results' | 'discussion' | 'conclusion'
+}
+
+/**
+ * Research paper sections
+ */
+export interface Sections {
+  abstract: string
+  introduction: string
+  methodology: string
+  results: string
+  discussion: string
+  conclusion: string
+}

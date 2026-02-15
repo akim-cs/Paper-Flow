@@ -1,19 +1,49 @@
 'use client';
 
 import { useState } from 'react';
-import type { PresentationConfig } from '../app/types/slides';
+import type { PresentationConfig, Slide } from '../app/types/slides';
 
 type Props = {
-  onConfigComplete: (config: PresentationConfig) => void;
+  paperId: string;
+  onComplete: (config: PresentationConfig, slides: Slide[]) => void;
 };
 
-export default function ConfigScreen({ onConfigComplete }: Props) {
+export default function ConfigScreen({ paperId, onComplete }: Props) {
   const [audienceLevel, setAudienceLevel] = useState<PresentationConfig['audienceLevel']>('intermediate');
   const [timeLimit, setTimeLimit] = useState<number>(15);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onConfigComplete({ audienceLevel, timeLimit });
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/generate-nodes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paperId, audienceLevel, timeLimit })
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data?.error || "Failed to generate slides");
+      }
+
+      const slides: Slide[] = await res.json();
+
+      onComplete({ audienceLevel, timeLimit }, slides);
+    } catch (err) {
+      console.error(err);
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unexpected error occurred");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -60,6 +90,9 @@ export default function ConfigScreen({ onConfigComplete }: Props) {
             className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2 dark:border-zinc-700 dark:bg-zinc-900"
           />
         </div>
+
+        {loading && <p className="text-sm text-zinc-500 dark:text-zinc-400">Generating slides...</p>}
+        {error && <p className="text-sm text-red-500">{error}</p>}
 
         <button
           type="submit"
