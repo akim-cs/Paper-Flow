@@ -7,6 +7,7 @@ import { NODE_WIDTH, NODE_WIDTH_EXPANDED } from '../app/lib/slidesToFlowNodes';
 
 type SlideNodeData = Slide & {
   label: string;
+  isExpanded?: boolean;
   onExpandChange?: (expanded: boolean) => void;
   onTitleChange?: (title: string) => void;
   onSpeakerNotesChange?: (speaker_notes: string[]) => void;
@@ -17,18 +18,16 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
     title,
     speaker_notes = [],
     est_time,
+    isExpanded = false,
     onExpandChange,
     onTitleChange,
     onSpeakerNotesChange,
   } = data as SlideNodeData;
-  const [expanded, setExpanded] = useState(false);
   const [newNoteDraft, setNewNoteDraft] = useState('');
 
   const handleToggle = useCallback(() => {
-    const next = !expanded;
-    setExpanded(next);
-    onExpandChange?.(next);
-  }, [expanded, onExpandChange]);
+    onExpandChange?.(!isExpanded);
+  }, [isExpanded, onExpandChange]);
 
   const handleTitleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -65,7 +64,7 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
     <div
       className="bg-white border-2 border-zinc-300 rounded-lg shadow-sm transition-all duration-200 ease-in-out hover:border-zinc-400 hover:shadow-md"
       style={
-        expanded
+        isExpanded
           ? { minWidth: NODE_WIDTH, maxWidth: NODE_WIDTH_EXPANDED, width: NODE_WIDTH_EXPANDED }
           : { width: NODE_WIDTH }
       }
@@ -92,7 +91,7 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
             style={{ minHeight: '1.5rem' }}
           />
           <span className="text-xs text-zinc-400 flex-shrink-0 pt-0.5">
-            {expanded ? '−' : '+'}
+            {isExpanded ? '−' : '+'}
           </span>
         </div>
         <div className="mt-1 text-xs text-zinc-500">
@@ -101,7 +100,7 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
       </div>
 
       {/* Expanded content - editable talking points (wrap like title); bullet aligned to first line */}
-      {expanded && (
+      {isExpanded && (
         <div className="border-t border-zinc-200 p-3 pt-2 break-words overflow-hidden">
           <p className="text-xs font-medium text-zinc-600 mb-2">Talking Points:</p>
           <ul className="space-y-1.5">

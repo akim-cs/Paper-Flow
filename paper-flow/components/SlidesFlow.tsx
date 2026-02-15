@@ -79,11 +79,15 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
     nodesRef.current = nodes;
   }, [nodes]);
 
+  // Sync nodes/edges from slides (e.g. after reorder); keep expanded state and apply expand layout so nodes stay expanded on rearrange
   useEffect(() => {
-    setNodes(initialNodes);
+    setNodes(
+      initialNodes.length === 0
+        ? initialNodes
+        : applyExpandLayout(initialNodes, expandedNodeIds)
+    );
     setEdges(initialEdges);
-    setExpandedNodeIds(new Set());
-  }, [initialNodes, initialEdges, setNodes, setEdges]);
+  }, [initialNodes, initialEdges, expandedNodeIds, setNodes, setEdges]);
 
   // When any node expands/collapses, recompute positions so all expanded nodes get room
   useEffect(() => {
@@ -134,13 +138,14 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
     );
   };
 
-  // Inject callbacks so SlideNode can notify us (expand, title, speaker notes)
+  // Inject callbacks and isExpanded so SlideNode is controlled by node id (not position)
   const displayNodes = useMemo(
     () =>
       nodes.map((n) => ({
         ...n,
         data: {
           ...n.data,
+          isExpanded: expandedNodeIds.has(n.id),
           onExpandChange: (expanded: boolean) => handleExpandChange(n.id, expanded),
           onTitleChange: (title: string) => handleTitleChange(n.id, title),
           onSpeakerNotesChange: (speaker_notes: string[]) =>
@@ -149,6 +154,7 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
       })),
     [
       nodes,
+      expandedNodeIds,
       handleExpandChange,
       handleTitleChange,
       handleSpeakerNotesChange,
