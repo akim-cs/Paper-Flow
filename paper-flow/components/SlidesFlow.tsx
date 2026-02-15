@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useEffect, useCallback, useRef } from 'react';
+import { useMemo, useEffect, useCallback, useRef, type ComponentType } from 'react';
 import {
   ReactFlow,
   Background,
@@ -16,6 +16,12 @@ import {
 import '@xyflow/react/dist/style.css';
 import type { Slide } from '../app/types/slides';
 import { slidesToFlowNodes } from '../app/lib/slidesToFlowNodes';
+import SlideNode from './SlideNode';
+
+// Define custom node types outside component to prevent re-creation on each render
+const nodeTypes: Record<string, ComponentType<any>> = {
+  slideNode: SlideNode,
+};
 
 type Props = {
   // Pass in a list of processed slides (paper -> json where each element is of type Slide)
@@ -80,6 +86,7 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
       <ReactFlow
         nodes={nodes}
         edges={edges}
+        nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}

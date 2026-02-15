@@ -14,7 +14,7 @@ export const HORIZONTAL_GAP = 60;
 export function slidesToFlowNodes(slides: Slide[]): { nodes: Node[]; edges: Edge[] } {
   const nodes: Node[] = slides.map((slide, index) => ({
     id: `slide-${index}`,
-    type: 'default',
+    type: 'slideNode',
     position: { x: index * (NODE_WIDTH + HORIZONTAL_GAP), y: 100 },
     sourcePosition: Position.Right, // put handles on L/R of nodes
     targetPosition: Position.Left,
