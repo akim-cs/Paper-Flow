@@ -10,6 +10,7 @@ import {
   useEdgesState,
   addEdge,
   MarkerType,
+  BackgroundVariant,
   type Node,
 } from '@xyflow/react';
 
@@ -21,6 +22,7 @@ import {
   NODE_WIDTH_EXPANDED,
   HORIZONTAL_GAP,
 } from '../app/lib/slidesToFlowNodes';
+import { paperFlowCanvasBg } from '../app/lib/theme';
 import SlideNode from './SlideNode';
 
 // Define custom node types outside component to prevent re-creation on each render
@@ -175,7 +177,7 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
         fitView
         className="rounded-xl"
       >
-        <Background gap={16} size={1} />
+        <Background gap={16} bgColor='#f3d8d240' size={1} />
         <Controls />
         <MiniMap />
       </ReactFlow>

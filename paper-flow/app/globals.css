@@ -3,6 +3,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Paper Flow (so var() works in arbitrary values) */
+  --color-paper-flow-border-dark: #0c3b62be;
 }
 
 @theme inline {
@@ -10,12 +12,20 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Paper Flow aliases (change hex values here to retheme) */
+  --color-paper-flow-text: #092e4c;   /* dark blue – main text */
+  --color-paper-flow-border: #8596b4; /* dusk blue – node border */
+  --color-paper-flow-border-dark: var(--color-paper-flow-border-dark);
+  --color-paper-flow-canvas: #f3d8d2c0;  /* pale pink – flow canvas background */
+  --color-paper-flow-side: #f3d8d280;  /* pale pink – flow canvas background */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
-    --foreground: #ededed;
+    --foreground: #ededed; 
+    /* --foreground: #f3dad2; */
   }
 }
 

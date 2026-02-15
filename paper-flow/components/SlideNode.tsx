@@ -4,6 +4,7 @@ import { useState, memo, useCallback } from 'react';
 import { Handle, Position, type NodeProps } from '@xyflow/react';
 import type { Slide } from '../app/types/slides';
 import { NODE_WIDTH, NODE_WIDTH_EXPANDED } from '../app/lib/slidesToFlowNodes';
+import { paperFlowTheme as theme } from '../app/lib/theme';
 
 type SlideNodeData = Slide & {
   label: string;
@@ -62,7 +63,7 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
 
   return (
     <div
-      className="bg-white border-2 border-zinc-300 rounded-lg shadow-sm transition-all duration-200 ease-in-out hover:border-zinc-400 hover:shadow-md"
+      className={`rounded-xl ${theme.nodeBorder} ${theme.nodeBg} ${theme.nodeShadow} ${theme.nodeBorderHover} ${theme.nodeShadowHover} transition-all duration-200 ease-in-out`}
       style={
         isExpanded
           ? { minWidth: NODE_WIDTH, maxWidth: NODE_WIDTH_EXPANDED, width: NODE_WIDTH_EXPANDED }
@@ -72,7 +73,7 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
       <Handle
         type="target"
         position={targetPosition ?? Position.Left}
-        className="!bg-zinc-400"
+        className={`!w-2 !h-2 ${theme.handleBorder} ${theme.handleBg}`}
       />
 
       {/* Header - editable title (wraps); rest of header clickable to expand/collapse */}
@@ -86,40 +87,40 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
             onChange={handleTitleChange}
             onClick={(e) => e.stopPropagation()}
             rows={2}
-            className="flex-1 min-w-0 text-sm font-medium text-zinc-800 leading-tight bg-transparent border-none outline-none focus:ring-1 focus:ring-zinc-400 focus:ring-inset rounded px-0.5 -mx-0.5 cursor-text resize-none overflow-hidden py-0"
+            className={`flex-1 min-w-0 text-sm font-medium ${theme.titleText} leading-tight bg-transparent border-none outline-none ${theme.focusRing} rounded px-0.5 -mx-0.5 cursor-text resize-none overflow-hidden py-0 ${theme.titlePlaceholder}`}
             placeholder="Slide title"
             style={{ minHeight: '1.5rem' }}
           />
-          <span className="text-xs text-zinc-400 flex-shrink-0 pt-0.5">
+          <span className={`text-xs ${theme.secondaryText} flex-shrink-0 pt-0.5 font-medium`}>
             {isExpanded ? '−' : '+'}
           </span>
         </div>
-        <div className="mt-1 text-xs text-zinc-500">
+        <div className={`mt-1 text-xs ${theme.secondaryTextAlt}`}>
           {est_time} min
         </div>
       </div>
 
-      {/* Expanded content - editable talking points (wrap like title); bullet aligned to first line */}
+      {/* Expanded content - editable talking points */}
       {isExpanded && (
-        <div className="border-t border-zinc-200 p-3 pt-2 break-words overflow-hidden">
-          <p className="text-xs font-medium text-zinc-600 mb-2">Talking Points:</p>
-          <ul className="space-y-1.5">
+        <div className={`${theme.expandedBorder} ${theme.expandedBg} p-3 pt-2 break-words overflow-hidden rounded-b-xl`}>
+          <p className={`text-xs font-medium ${theme.expandedLabel} mb-1.5`}>Talking Points</p>
+          <ul className="space-y-0.5">
             {speaker_notes.map((note, idx) => (
               <li key={idx} className="flex gap-2 items-start">
-                <span className="text-zinc-400 text-xs leading-relaxed pt-[0.35rem] shrink-0 w-[0.5rem] text-center">•</span>
+                <span className={`${theme.noteBullet} text-xs leading-relaxed pt-[0.35rem] shrink-0 w-[0.5rem] text-center`}>•</span>
                 <textarea
                   value={note}
                   onChange={(e) => handleNoteChangeTextarea(idx, e)}
                   onClick={(e) => e.stopPropagation()}
                   rows={2}
-                  className="flex-1 min-w-0 text-xs text-zinc-600 leading-relaxed bg-transparent border-none outline-none focus:ring-1 focus:ring-zinc-400 focus:ring-inset rounded px-0.5 -mx-0.5 cursor-text resize-none overflow-hidden py-0"
+                  className={`flex-1 min-w-0 text-xs ${theme.noteText} leading-relaxed bg-transparent border-none outline-none ${theme.focusRing} rounded px-0.5 -mx-0.5 cursor-text resize-none overflow-hidden py-0 ${theme.notePlaceholder}`}
                   placeholder="Talking point"
                   style={{ minHeight: '1.25rem' }}
                 />
               </li>
             ))}
             <li className="flex gap-2 items-start">
-              <span className="text-zinc-400 text-xs leading-relaxed pt-[0.35rem] shrink-0 w-[0.5rem] text-center">•</span>
+              <span className={`${theme.noteBullet} text-xs leading-relaxed pt-[0.35rem] shrink-0 w-[0.5rem] text-center`}>•</span>
               <textarea
                 value={newNoteDraft}
                 onChange={(e) => setNewNoteDraft(e.target.value)}
@@ -132,7 +133,7 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
                 }}
                 onClick={(e) => e.stopPropagation()}
                 rows={2}
-                className="flex-1 min-w-0 text-xs text-zinc-500 italic bg-transparent border-none outline-none focus:ring-1 focus:ring-zinc-400 focus:ring-inset rounded px-0.5 -mx-0.5 cursor-text resize-none overflow-hidden py-0 placeholder:italic"
+                className={`flex-1 min-w-0 text-xs ${theme.noteDraft} italic bg-transparent border-none outline-none ${theme.focusRing} rounded px-0.5 -mx-0.5 cursor-text resize-none overflow-hidden py-0 placeholder:italic ${theme.notePlaceholder}`}
                 placeholder="Add a talking point…"
                 style={{ minHeight: '1.25rem' }}
               />
@@ -144,7 +145,7 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
       <Handle
         type="source"
         position={sourcePosition ?? Position.Right}
-        className="!bg-zinc-400"
+        className={`!w-2 !h-2 ${theme.handleBorder} ${theme.handleBg}`}
       />
     </div>
   );
