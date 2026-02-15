@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useEffect, useCallback, useRef, type ComponentType } from 'react';
+import { useMemo, useEffect, useCallback, useRef, useState, type ComponentType } from 'react';
 import {
   ReactFlow,
   Background,
@@ -15,7 +15,12 @@ import {
 
 import '@xyflow/react/dist/style.css';
 import type { Slide } from '../app/types/slides';
-import { slidesToFlowNodes } from '../app/lib/slidesToFlowNodes';
+import {
+  slidesToFlowNodes,
+  NODE_WIDTH,
+  NODE_WIDTH_EXPANDED,
+  HORIZONTAL_GAP,
+} from '../app/lib/slidesToFlowNodes';
 import SlideNode from './SlideNode';
 
 // Define custom node types outside component to prevent re-creation on each render
@@ -39,6 +44,22 @@ function nodesToOrderedSlides(nodes: Node[]): Slide[] {
 }
 
 /**
+ * Recompute x positions so every expanded node gets NODE_WIDTH_EXPANDED and others get NODE_WIDTH.
+ * Order is preserved by sorting by current position.x. Multiple expanded nodes are all accounted for.
+ */
+function applyExpandLayout(nodes: Node[], expandedNodeIds: Set<string>): Node[] {
+  const sorted = [...nodes].sort((a, b) => a.position.x - b.position.x);
+  let x = 0;
+  const y = 100;
+  return sorted.map((node) => {
+    const width = expandedNodeIds.has(node.id) ? NODE_WIDTH_EXPANDED : NODE_WIDTH;
+    const position = { x, y };
+    x += width + HORIZONTAL_GAP;
+    return { ...node, position };
+  });
+}
+
+/**
  * Renders the given slides as React Flow nodes (horizontal chain).
  * Converts slides to nodes/edges via slidesToFlowNodes and keeps flow state in sync when slides change.
  * On node drag end, reorders slides by x position and snaps layout so edges reconnect automatically.
@@ -52,6 +73,7 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const nodesRef = useRef(nodes);
+  const [expandedNodeIds, setExpandedNodeIds] = useState<Set<string>>(() => new Set());
 
   useEffect(() => {
     nodesRef.current = nodes;
@@ -60,7 +82,22 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
   useEffect(() => {
     setNodes(initialNodes);
     setEdges(initialEdges);
+    setExpandedNodeIds(new Set());
   }, [initialNodes, initialEdges, setNodes, setEdges]);
+
+  // When any node expands/collapses, recompute positions so all expanded nodes get room
+  useEffect(() => {
+    setNodes((prev) => (prev.length === 0 ? prev : applyExpandLayout(prev, expandedNodeIds)));
+  }, [expandedNodeIds, setNodes]);
+
+  const handleExpandChange = useCallback((nodeId: string, expanded: boolean) => {
+    setExpandedNodeIds((prev) => {
+      const next = new Set(prev);
+      if (expanded) next.add(nodeId);
+      else next.delete(nodeId);
+      return next;
+    });
+  }, []);
 
   const onNodeDragStop = useCallback(() => {
     if (!onSlidesChange) return;
@@ -81,10 +118,23 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
     );
   };
 
+  // Inject onExpandChange so SlideNode can notify us; we update positions in the effect above
+  const displayNodes = useMemo(
+    () =>
+      nodes.map((n) => ({
+        ...n,
+        data: {
+          ...n.data,
+          onExpandChange: (expanded: boolean) => handleExpandChange(n.id, expanded),
+        },
+      })),
+    [nodes, handleExpandChange]
+  );
+
   return (
     <div className="h-[80vh] w-full rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
       <ReactFlow
-        nodes={nodes}
+        nodes={displayNodes}
         edges={edges}
         nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}

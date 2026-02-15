@@ -5,6 +5,8 @@ import type { Slide } from '../types/slides';
 export const NODE_WIDTH = 200;
 export const NODE_HEIGHT = 80;
 export const HORIZONTAL_GAP = 60;
+/** Width when expanded (user preference, e.g. 300) */
+export const NODE_WIDTH_EXPANDED = 300;
 
 /**
  * Converts an array of slides parsed from the paper into React Flow nodes and edges.
