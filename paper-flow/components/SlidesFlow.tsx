@@ -99,6 +99,22 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
     });
   }, []);
 
+  const handleTitleChange = useCallback((nodeId: string, title: string) => {
+    setNodes((prev) =>
+      prev.map((n) =>
+        n.id === nodeId ? { ...n, data: { ...n.data, title } } : n
+      )
+    );
+  }, [setNodes]);
+
+  const handleSpeakerNotesChange = useCallback((nodeId: string, speaker_notes: string[]) => {
+    setNodes((prev) =>
+      prev.map((n) =>
+        n.id === nodeId ? { ...n, data: { ...n.data, speaker_notes } } : n
+      )
+    );
+  }, [setNodes]);
+
   const onNodeDragStop = useCallback(() => {
     if (!onSlidesChange) return;
     // Defer so we don't update parent (CreateScreen) during this component's render.
@@ -118,7 +134,7 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
     );
   };
 
-  // Inject onExpandChange so SlideNode can notify us; we update positions in the effect above
+  // Inject callbacks so SlideNode can notify us (expand, title, speaker notes)
   const displayNodes = useMemo(
     () =>
       nodes.map((n) => ({
@@ -126,9 +142,17 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
         data: {
           ...n.data,
           onExpandChange: (expanded: boolean) => handleExpandChange(n.id, expanded),
+          onTitleChange: (title: string) => handleTitleChange(n.id, title),
+          onSpeakerNotesChange: (speaker_notes: string[]) =>
+            handleSpeakerNotesChange(n.id, speaker_notes),
         },
       })),
-    [nodes, handleExpandChange]
+    [
+      nodes,
+      handleExpandChange,
+      handleTitleChange,
+      handleSpeakerNotesChange,
+    ]
   );
 
   return (
