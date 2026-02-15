@@ -5,6 +5,7 @@
   --foreground: #171717;
   /* Paper Flow (so var() works in arbitrary values) */
   --color-paper-flow-border-dark: #0c3b62be;
+  --color-paper-flow-canvas-solid: #f3d8d2;
 }
 
 @theme inline {
@@ -17,8 +18,9 @@
   --color-paper-flow-text: #092e4c;   /* dark blue – main text */
   --color-paper-flow-border: #8596b4; /* dusk blue – node border */
   --color-paper-flow-border-dark: var(--color-paper-flow-border-dark);
-  --color-paper-flow-canvas: #f3d8d2c0;  /* pale pink – flow canvas background */
-  --color-paper-flow-side: #f3d8d280;  /* pale pink – flow canvas background */
+  --color-paper-flow-canvas: #f3d8d240;  /* pale pink – flow canvas background (with alpha) */
+  --color-paper-flow-canvas-solid: #f3d8d2;  /* same pale pink, solid – header / match canvas */
+  --color-paper-flow-side: #d99d9780;  /* pale pink – flow canvas background */
 }
 
 @media (prefers-color-scheme: dark) {

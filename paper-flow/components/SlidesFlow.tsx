@@ -81,7 +81,8 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
     nodesRef.current = nodes;
   }, [nodes]);
 
-  // Sync nodes/edges from slides (e.g. after reorder); keep expanded state and apply expand layout so nodes stay expanded on rearrange
+  // Sync nodes/edges from slides only when parent data changes (e.g. reorder). Do NOT include
+  // expandedNodeIds here, or expanding another node would overwrite local edits (e.g. new talking points).
   useEffect(() => {
     setNodes(
       initialNodes.length === 0
@@ -89,7 +90,7 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
         : applyExpandLayout(initialNodes, expandedNodeIds)
     );
     setEdges(initialEdges);
-  }, [initialNodes, initialEdges, expandedNodeIds, setNodes, setEdges]);
+  }, [initialNodes, initialEdges, setNodes, setEdges]);
 
   // When any node expands/collapses, recompute positions so all expanded nodes get room
   useEffect(() => {
