@@ -10,8 +10,9 @@ import {
   useEdgesState,
   addEdge,
   MarkerType,
-  BackgroundVariant,
+  Position,
   type Node,
+  type Edge,
 } from '@xyflow/react';
 
 import '@xyflow/react/dist/style.css';
@@ -46,8 +47,26 @@ function nodesToOrderedSlides(nodes: Node[]): Slide[] {
 }
 
 /**
+ * X value for a new node so it sorts after `node` (e.g. when inserting after the last node).
+ * applyExpandLayout will then assign the real position.
+ */
+function xAfter(node: Node): number {
+  return node.position.x + NODE_WIDTH + HORIZONTAL_GAP;
+}
+
+/**
+ * X value for a new node so it sorts between `prev` and `next` (when inserting in the middle).
+ */
+function xBetween(prev: Node, next: Node): number {
+  return (prev.position.x + next.position.x) / 2;
+}
+
+/**
  * Recompute x positions so every expanded node gets NODE_WIDTH_EXPANDED and others get NODE_WIDTH.
  * Order is preserved by sorting by current position.x. Multiple expanded nodes are all accounted for.
+ *
+ * Important for insert: a new node must get an initial position.x that sorts it in the right place.
+ * If you give it x: 0 it would sort first (bug). Use xBetween(prevNode, nextNode) or xAfter(lastNode).
  */
 function applyExpandLayout(nodes: Node[], expandedNodeIds: Set<string>): Node[] {
   const sorted = [...nodes].sort((a, b) => a.position.x - b.position.x);
@@ -75,6 +94,7 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const nodesRef = useRef(nodes);
+  const insertIdRef = useRef(0);
   const [expandedNodeIds, setExpandedNodeIds] = useState<Set<string>>(() => new Set());
 
   useEffect(() => {
@@ -122,6 +142,47 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
     );
   }, [setNodes]);
 
+  const handleInsertAfter = useCallback(
+    (nodeId: string) => {
+      const currentNodes = nodesRef.current;
+      const sorted = [...currentNodes].sort(
+        (a, b) => a.position.x - b.position.x || a.id.localeCompare(b.id)
+      );
+      const index = sorted.findIndex((n) => n.id === nodeId);
+      if (index === -1) return;
+
+      const newSlide: Slide = { title: '', speaker_notes: [], est_time: 0 };
+      const newId = `slide-insert-${++insertIdRef.current}`;
+      const isLast = index === sorted.length - 1;
+      const newX = isLast
+        ? xAfter(sorted[index])
+        : xBetween(sorted[index], sorted[index + 1]);
+      const newNode: Node = {
+        id: newId,
+        type: 'slideNode',
+        position: { x: newX, y: 100 },
+        sourcePosition: Position.Right,
+        targetPosition: Position.Left,
+        data: { label: '', ...newSlide },
+      };
+      const withNew = [...sorted, newNode];
+      const layouted = applyExpandLayout(withNew, expandedNodeIds);
+      const newEdgeList: Edge[] = layouted.slice(0, -1).map((n, i) => ({
+        id: `e-${n.id}-${layouted[i + 1].id}`,
+        source: n.id,
+        target: layouted[i + 1].id,
+        markerEnd: { type: MarkerType.ArrowClosed },
+      }));
+
+      setNodes(layouted);
+      setEdges(newEdgeList);
+      if (onSlidesChange) {
+        setTimeout(() => onSlidesChange(nodesToOrderedSlides(layouted)), 0);
+      }
+    },
+    [expandedNodeIds, setNodes, setEdges, onSlidesChange]
+  );
+
   const onNodeDragStop = useCallback(() => {
     if (!onSlidesChange) return;
     // Defer so we don't update parent (CreateScreen) during this component's render.
@@ -153,6 +214,7 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
           onTitleChange: (title: string) => handleTitleChange(n.id, title),
           onSpeakerNotesChange: (speaker_notes: string[]) =>
             handleSpeakerNotesChange(n.id, speaker_notes),
+          onInsertAfter: (nodeId: string) => handleInsertAfter(nodeId),
         },
       })),
     [
@@ -161,6 +223,7 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
       handleExpandChange,
       handleTitleChange,
       handleSpeakerNotesChange,
+      handleInsertAfter,
     ]
   );
 

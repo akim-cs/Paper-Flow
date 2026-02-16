@@ -12,6 +12,7 @@ type SlideNodeData = Slide & {
   onExpandChange?: (expanded: boolean) => void;
   onTitleChange?: (title: string) => void;
   onSpeakerNotesChange?: (speaker_notes: string[]) => void;
+  onInsertAfter?: (nodeId: string) => void;
 };
 
 function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
@@ -23,6 +24,7 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
     onExpandChange,
     onTitleChange,
     onSpeakerNotesChange,
+    onInsertAfter,
   } = data as SlideNodeData;
   const [newNoteDraft, setNewNoteDraft] = useState('');
 
@@ -91,9 +93,25 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
             placeholder="Slide title"
             style={{ minHeight: '1.5rem' }}
           />
-          <span className={`text-xs ${theme.secondaryText} flex-shrink-0 pt-0.5 font-medium`}>
-            {isExpanded ? '−' : '+'}
-          </span>
+          <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
+            {onInsertAfter && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onInsertAfter(id);
+                }}
+                className={`text-xs ${theme.secondaryText} hover:opacity-80 font-medium w-6 h-6 rounded flex items-center justify-center border border-transparent hover:border-current`}
+                title="Insert slide to the right"
+                aria-label="Insert slide to the right"
+              >
+                ⊕
+              </button>
+            )}
+            <span className={`text-xs ${theme.secondaryText} font-medium w-6 h-6 flex items-center justify-center`}>
+              {isExpanded ? '−' : '+'}
+            </span>
+          </div>
         </div>
         <div className={`mt-1 text-xs ${theme.secondaryTextAlt}`}>
           {est_time} min

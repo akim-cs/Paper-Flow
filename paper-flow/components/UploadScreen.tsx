@@ -93,7 +93,7 @@ export default function UploadScreen({ onUploadComplete }: Props) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center gap-6 rounded-xl border border-zinc-200 bg-white p-12 dark:border-zinc-800 dark:bg-zinc-950">
+    <div className="flex flex-col items-center justify-center gap-6 rounded-xl border border-paper-flow-border bg-paper-flow-canvas- p-12 dark:border-zinc-800 dark:bg-zinc-950">
       <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
         Upload a paper
       </h2>
