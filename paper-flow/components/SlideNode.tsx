@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, memo, useCallback } from 'react';
+import { useState, memo, useCallback, useRef, useEffect } from 'react';
 import { Handle, Position, type NodeProps } from '@xyflow/react';
 import type { Slide } from '../app/types/slides';
 import { NODE_WIDTH, NODE_WIDTH_EXPANDED } from '../app/lib/slidesToFlowNodes';
@@ -29,6 +29,19 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
     onDelete,
   } = data as SlideNodeData;
   const [newNoteDraft, setNewNoteDraft] = useState('');
+  const titleRef = useRef<HTMLTextAreaElement | null>(null);
+
+  // Auto-grow title so full text is visible when collapsed or expanded; defer so we measure after layout.
+  useEffect(() => {
+    const el = titleRef.current;
+    if (!el) return;
+    const run = () => {
+      el.style.height = 'auto';
+      el.style.height = `${Math.max(el.scrollHeight, 24)}px`;
+    };
+    const id = requestAnimationFrame(() => run());
+    return () => cancelAnimationFrame(id);
+  }, [title, isExpanded]);
 
   const handleToggle = useCallback(() => {
     onExpandChange?.(!isExpanded);
@@ -36,7 +49,7 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
 
   const handleTitleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      onTitleChange?.(e.target.value);
+      onTitleChange?.(e.target.value.replace(/\n+$/, ''));
     },
     [onTitleChange]
   );
@@ -67,7 +80,7 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
 
   return (
     <div
-      className={`rounded-xl ${theme.nodeBorder} ${theme.nodeBg} ${theme.nodeShadow} ${theme.nodeBorderHover} ${theme.nodeShadowHover} transition-all duration-200 ease-in-out`}
+      className={`rounded-xl overflow-visible ${theme.nodeBorder} ${theme.nodeBg} ${theme.nodeShadow} ${theme.nodeBorderHover} ${theme.nodeShadowHover} transition-all duration-200 ease-in-out`}
       style={
         isExpanded
           ? { minWidth: NODE_WIDTH, maxWidth: NODE_WIDTH_EXPANDED, width: NODE_WIDTH_EXPANDED }
@@ -82,20 +95,21 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
 
       {/* Header - editable title (wraps); rest of header clickable to expand/collapse */}
       <div
-        className="p-3 break-words overflow-hidden cursor-pointer"
+        className="p-3 break-words overflow-visible cursor-pointer"
         onClick={handleToggle}
       >
         <div className="flex items-start justify-between gap-2">
           <textarea
-            value={title}
+            ref={titleRef}
+            value={title.trimEnd()}
             onChange={handleTitleChange}
             onClick={(e) => e.stopPropagation()}
-            rows={2}
-            className={`flex-1 min-w-0 text-sm font-medium ${theme.titleText} leading-tight bg-transparent border-none outline-none ${theme.focusRing} rounded px-0.5 -mx-0.5 cursor-text resize-none overflow-hidden py-0 ${theme.titlePlaceholder}`}
+            rows={1}
+            className={`w-0 flex-1 min-w-0 text-sm font-medium ${theme.titleText} leading-tight bg-transparent border-none outline-none ${theme.focusRing} rounded px-0.5 -mx-0.5 cursor-text resize-none overflow-hidden py-0 ${theme.titlePlaceholder} break-words`}
             placeholder="Slide title"
-            style={{ minHeight: '1.5rem' }}
+            style={{ minHeight: '1.5rem', wordBreak: 'break-word', overflowWrap: 'break-word' }}
           />
-          <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
+          <div className="flex flex-col items-center gap-0.2 flex-shrink-0">
             {onInsertAfter && (
               <button
                 type="button"
@@ -103,7 +117,7 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
                   e.stopPropagation();
                   onInsertAfter(id);
                 }}
-                className={`text-xs ${theme.secondaryText} hover:opacity-80 font-medium w-6 h-6 rounded flex items-center justify-center border border-transparent hover:border-current`}
+                className={`text-lg ${theme.secondaryText} hover:opacity-80 font-medium w-5 h-5 rounded flex items-center justify-center border border-transparent hover:border-current`}
                 title="Insert slide to the right"
                 aria-label="Insert slide to the right"
               >
@@ -117,7 +131,7 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
                   e.stopPropagation();
                   onDelete(id);
                 }}
-                className={`text-xs ${theme.secondaryText} hover:opacity-80 hover:text-red-600 font-medium w-6 h-6 rounded flex items-center justify-center border border-transparent hover:border-current`}
+                className={`text-lg ${theme.secondaryText} hover:opacity-80 hover:text-red-600 font-medium w-5 h-5 rounded flex items-center justify-center border border-transparent hover:border-current`}
                 title="Delete this slide"
                 aria-label="Delete slide"
               >
@@ -125,7 +139,7 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
               </button>
             )}
             <span className={`text-xs ${theme.secondaryText} font-medium w-6 h-6 flex items-center justify-center`}>
-              {isExpanded ? '−' : '+'}
+              {/* {isExpanded ? '−' : '+'} */}
             </span>
           </div>
         </div>
