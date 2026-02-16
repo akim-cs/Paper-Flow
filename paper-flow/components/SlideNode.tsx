@@ -117,7 +117,7 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
                   e.stopPropagation();
                   onInsertAfter(id);
                 }}
-                className={`text-lg ${theme.secondaryText} hover:opacity-80 font-medium w-5 h-5 rounded flex items-center justify-center border border-transparent hover:border-current`}
+                className={`text-lg ${theme.secondaryText} hover:opacity-80 font-medium w-5 h-5 rounded flex items-center justify-center border border-transparent hover:border-current hover:cursor-pointer`}
                 title="Insert slide to the right"
                 aria-label="Insert slide to the right"
               >
@@ -131,7 +131,7 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
                   e.stopPropagation();
                   onDelete(id);
                 }}
-                className={`text-lg ${theme.secondaryText} hover:opacity-80 hover:text-red-600 font-medium w-5 h-5 rounded flex items-center justify-center border border-transparent hover:border-current`}
+                className={`text-lg ${theme.secondaryText} hover:opacity-80 hover:text-red-600 font-medium w-5 h-5 rounded flex items-center justify-center border border-transparent hover:border-current hover:cursor-pointer`}
                 title="Delete this slide"
                 aria-label="Delete slide"
               >
