@@ -101,15 +101,34 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
     nodesRef.current = nodes;
   }, [nodes]);
 
-  // Sync nodes/edges from slides only when parent data changes (e.g. reorder). Do NOT include
-  // expandedNodeIds here, or expanding another node would overwrite local edits (e.g. new talking points).
+  // Sync nodes/edges from slides when parent data changes (e.g. after drag). Preserve current node
+  // ids so expanded state stays on the same logical node after reorder (ids are not re-assigned by position).
   useEffect(() => {
-    setNodes(
-      initialNodes.length === 0
-        ? initialNodes
-        : applyExpandLayout(initialNodes, expandedNodeIds)
+    if (initialNodes.length === 0) {
+      setNodes([]);
+      setEdges(initialEdges);
+      return;
+    }
+    const current = nodesRef.current;
+    const sortedCurrent = [...current].sort(
+      (a, b) => a.position.x - b.position.x || a.id.localeCompare(b.id)
     );
-    setEdges(initialEdges);
+    const merged = initialNodes.map((fromParent, i) =>
+      i < sortedCurrent.length
+        ? { ...fromParent, id: sortedCurrent[i].id }
+        : fromParent
+    );
+    const layouted = applyExpandLayout(merged, expandedNodeIds);
+    const newEdges: Edge[] = layouted
+      .slice(0, -1)
+      .map((n, i) => ({
+        id: `e-${n.id}-${layouted[i + 1].id}`,
+        source: n.id,
+        target: layouted[i + 1].id,
+        markerEnd: { type: MarkerType.ArrowClosed },
+      }));
+    setNodes(layouted);
+    setEdges(newEdges);
   }, [initialNodes, initialEdges, setNodes, setEdges]);
 
   // When any node expands/collapses, recompute positions so all expanded nodes get room
