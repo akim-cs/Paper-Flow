@@ -54,8 +54,6 @@ export async function parseSections(text: string) {
 
   const cleaned = cleanJsonString(sectionJson);
 
-  console.log(cleaned);
-
   try {
     const sections = JSON.parse(cleaned);
     return sections;
@@ -91,7 +89,7 @@ export async function generateOutline(
   }
 }
 
-// --- Generate Nodes
+// --- Generate Nodes ---
 export async function generateNodes(
   outline: OutlineItem[],
   sections: Sections,

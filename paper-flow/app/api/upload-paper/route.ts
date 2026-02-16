@@ -14,8 +14,6 @@ export async function POST(req: Request) {
 
     const extractedText = await extractPdfText(fileBuffer);
 
-    console.log(extractedText);
-
     const paperId = crypto.randomUUID();
 
     paperStore.set(paperId, extractedText);
