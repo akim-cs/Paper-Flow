@@ -142,6 +142,47 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
     );
   }, [setNodes]);
 
+  const handleDelete = useCallback(
+    (nodeId: string) => {
+      const currentNodes = nodesRef.current;
+      const without = currentNodes.filter((n) => n.id !== nodeId);
+      if (without.length === 0) {
+        setNodes([]);
+        setEdges([]);
+        setExpandedNodeIds((prev) => {
+          const next = new Set(prev);
+          next.delete(nodeId);
+          return next;
+        });
+        if (onSlidesChange) onSlidesChange([]);
+        return;
+      }
+      const sorted = [...without].sort(
+        (a, b) => a.position.x - b.position.x || a.id.localeCompare(b.id)
+      );
+      const layouted = applyExpandLayout(sorted, expandedNodeIds);
+      const newEdgeList: Edge[] = layouted
+        .slice(0, -1)
+        .map((n, i) => ({
+          id: `e-${n.id}-${layouted[i + 1].id}`,
+          source: n.id,
+          target: layouted[i + 1].id,
+          markerEnd: { type: MarkerType.ArrowClosed },
+        }));
+      setExpandedNodeIds((prev) => {
+        const next = new Set(prev);
+        next.delete(nodeId);
+        return next;
+      });
+      setNodes(layouted);
+      setEdges(newEdgeList);
+      if (onSlidesChange) {
+        setTimeout(() => onSlidesChange(nodesToOrderedSlides(layouted)), 0);
+      }
+    },
+    [expandedNodeIds, setNodes, setEdges, onSlidesChange]
+  );
+
   const handleInsertAfter = useCallback(
     (nodeId: string) => {
       const currentNodes = nodesRef.current;
@@ -215,6 +256,7 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
           onSpeakerNotesChange: (speaker_notes: string[]) =>
             handleSpeakerNotesChange(n.id, speaker_notes),
           onInsertAfter: (nodeId: string) => handleInsertAfter(nodeId),
+          onDelete: (nodeId: string) => handleDelete(nodeId),
         },
       })),
     [
@@ -224,6 +266,7 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
       handleTitleChange,
       handleSpeakerNotesChange,
       handleInsertAfter,
+      handleDelete,
     ]
   );
 

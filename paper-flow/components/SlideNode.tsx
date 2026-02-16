@@ -13,6 +13,7 @@ type SlideNodeData = Slide & {
   onTitleChange?: (title: string) => void;
   onSpeakerNotesChange?: (speaker_notes: string[]) => void;
   onInsertAfter?: (nodeId: string) => void;
+  onDelete?: (nodeId: string) => void;
 };
 
 function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
@@ -25,6 +26,7 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
     onTitleChange,
     onSpeakerNotesChange,
     onInsertAfter,
+    onDelete,
   } = data as SlideNodeData;
   const [newNoteDraft, setNewNoteDraft] = useState('');
 
@@ -106,6 +108,20 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
                 aria-label="Insert slide to the right"
               >
                 ⊕
+              </button>
+            )}
+            {onDelete && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(id);
+                }}
+                className={`text-xs ${theme.secondaryText} hover:opacity-80 hover:text-red-600 font-medium w-6 h-6 rounded flex items-center justify-center border border-transparent hover:border-current`}
+                title="Delete this slide"
+                aria-label="Delete slide"
+              >
+                ×
               </button>
             )}
             <span className={`text-xs ${theme.secondaryText} font-medium w-6 h-6 flex items-center justify-center`}>
