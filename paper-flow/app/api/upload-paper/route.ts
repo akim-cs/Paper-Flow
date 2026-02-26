@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { paperStore, extractPdfText } from "@/app/lib/gemini/helpers";
+import { extractPdfText } from "@/app/lib/gemini/helpers";
 
 export async function POST(req: Request) {
   try {
@@ -14,11 +14,7 @@ export async function POST(req: Request) {
 
     const extractedText = await extractPdfText(fileBuffer);
 
-    const paperId = crypto.randomUUID();
-
-    paperStore.set(paperId, extractedText);
-
-    return NextResponse.json({ paperId });
+    return NextResponse.json({ extractedText });
   } catch (err) {
     console.error("Error in upload-paper", err);
     return NextResponse.json(

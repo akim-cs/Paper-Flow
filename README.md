@@ -8,8 +8,12 @@ An AI-powered tool that transforms academic research papers into interactive pre
 - **AI-Powered Slide Generation** - Converts paper content into structured presentation slides using Google Gemini AI
 - **Presentation Configuration** - Customize for your audience level (beginner, intermediate, expert) and time limit (5-120 minutes)
 - **Interactive Timeline** - Slides displayed as draggable, connectable nodes in a visual flow diagram
-- **Expandable Slide Nodes** - View slide titles, time estimates, and expandable speaker notes
+- **Expandable Slide Nodes** - View slide titles, time estimates, and expandable talking points
+- **Rich Text Editing** - Edit slide content with MDXEditor (markdown support, formatting toolbar)
 - **Smart Time Distribution** - Automatically allocates speaking time across slides based on your time constraints
+- **Google Authentication** - Sign in with Google account
+- **Project Persistence** - Save and load projects from Firebase Firestore
+- **Project Management** - View, open, and delete saved projects from dashboard
 
 ## How It Works
 
@@ -28,11 +32,13 @@ An AI-powered tool that transforms academic research papers into interactive pre
 
 ## Tech Stack
 
-- **Framework**: Next.js 16 with React 19
+- **Framework**: Next.js 15 with React 19
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS 4
 - **Flow Diagrams**: @xyflow/react
-- **AI**: Google Gemini API (gemini-2.5-flash, gemini-3-flash-preview)
+- **Rich Text**: MDXEditor
+- **AI**: Google Gemini API (gemini-2.0-flash, gemini-2.5-flash-preview)
+- **Auth & Database**: Firebase (Authentication, Firestore)
 
 ## Getting Started
 
@@ -54,9 +60,15 @@ cd paper-flow
 npm install
 ```
 
-3. Create a `.env.local` file with your Gemini API key:
+3. Create a `.env.local` file with your API keys:
 ```env
-GOOGLE_GEMINI_API_KEY=your_api_key_here
+GOOGLE_GEMINI_API_KEY=your_gemini_api_key
+NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 ```
 
 4. Run the development server:
@@ -71,23 +83,33 @@ npm run dev
 ```
 paper-flow/
 ├── app/
-│   ├── page.tsx                    # Landing page
+│   ├── page.tsx                    # Landing/redirect page
+│   ├── login/page.tsx              # Google sign-in page
+│   ├── projects/
+│   │   ├── page.tsx                # Projects dashboard
+│   │   ├── new/page.tsx            # New project flow
+│   │   └── [id]/page.tsx           # Edit existing project
 │   ├── api/
 │   │   ├── upload-paper/           # PDF upload endpoint
 │   │   └── generate-nodes/         # Slide generation endpoint
 │   ├── lib/
+│   │   ├── firebase/               # Firebase config, auth, firestore
 │   │   ├── gemini/                 # Gemini AI client, helpers, prompts
 │   │   └── slidesToFlowNodes.ts    # Converts slides to React Flow nodes
 │   └── types/
-│       └── slides.ts               # TypeScript type definitions
+│       ├── slides.ts               # Slide type definitions
+│       └── project.ts              # Project type definitions
 ├── components/
+│   ├── auth/AuthGuard.tsx          # Protected route wrapper
+│   ├── projects/                   # Project list and card components
 │   ├── CreateScreen.tsx            # Main orchestrator (3-step flow)
 │   ├── UploadScreen.tsx            # PDF upload UI
 │   ├── ConfigScreen.tsx            # Presentation settings form
 │   ├── SlidesFlow.tsx              # React Flow canvas
-│   └── SlideNode.tsx               # Custom slide node component
+│   ├── SlideNode.tsx               # Custom slide node component
+│   └── SlideNodeEditor.tsx         # MDXEditor wrapper for slide content
 └── public/
-    └── icon.png                    # App favicon
+    └── lineart_boat.png            # App logo
 ```
 
 ## License

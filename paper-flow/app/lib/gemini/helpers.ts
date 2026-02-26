@@ -2,19 +2,6 @@ import { geminiText, geminiVision } from "./client";
 import { PDF_EXTRACT_PROMPT, SECTION_PROMPT, OUTLINE_PROMPT, SLIDES_PROMPT} from "./prompts";
 import { Sections, OutlineItem, Slide, PresentationConfig } from "@/app/types/slides"
 
-// ------------------------------
-// TypeScript global augmentation
-// ------------------------------
-declare global {
-  var paperStore: Map<string, string>;
-}
-
-// ------------------------------
-// In-memory store for uploaded PDFs
-// ------------------------------
-export const paperStore: Map<string, string> = globalThis.paperStore || new Map<string, string>();
-globalThis.paperStore = paperStore;
-
 export function cleanJsonString(raw: string): string {
   return raw.replace(/```(json)?\s*([\s\S]*?)```/, '$2').trim();
 }

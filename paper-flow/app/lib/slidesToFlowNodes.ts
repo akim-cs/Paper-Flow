@@ -14,17 +14,26 @@ export const NODE_WIDTH_EXPANDED = 300;
  * Handles are on left/right so edges run horizontally between nodes.
  */
 export function slidesToFlowNodes(slides: Slide[]): { nodes: Node[]; edges: Edge[] } {
-  const nodes: Node[] = slides.map((slide, index) => ({
-    id: `slide-${index}`,
-    type: 'slideNode',
-    position: { x: index * (NODE_WIDTH + HORIZONTAL_GAP), y: 100 },
-    sourcePosition: Position.Right, // put handles on L/R of nodes
-    targetPosition: Position.Left,
-    data: {
-      label: slide.title,
-      ...slide,
-    },
-  }));
+  const nodes: Node[] = slides.map((slide, index) => {
+    // Convert speaker_notes array to contentMarkdown if not already set
+    const contentMarkdown = slide.contentMarkdown ??
+      (slide.speaker_notes?.length
+        ? slide.speaker_notes.map(note => `- ${note}`).join('\n')
+        : '');
+
+    return {
+      id: `slide-${index}`,
+      type: 'slideNode',
+      position: { x: index * (NODE_WIDTH + HORIZONTAL_GAP), y: 100 },
+      sourcePosition: Position.Right, // put handles on L/R of nodes
+      targetPosition: Position.Left,
+      data: {
+        label: slide.title,
+        ...slide,
+        contentMarkdown,
+      },
+    };
+  });
 
   /**
    * Create edges between each node in the list.
