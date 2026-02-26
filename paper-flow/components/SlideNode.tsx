@@ -142,9 +142,15 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
                 ×
               </button>
             )}
-            <span className={`text-xs ${theme.secondaryText} font-medium w-6 h-6 flex items-center justify-center`}>
-              {/* {isExpanded ? '−' : '+'} */}
-            </span>
+            <button
+              type="button"
+              onClick={handleToggle}
+              className={`text-sm ${theme.secondaryText} hover:opacity-80 font-medium w-5 h-5 rounded flex items-center justify-center transition-transform duration-200`}
+              title={isExpanded ? 'Collapse slide' : 'Expand slide'}
+              aria-label={isExpanded ? 'Collapse slide' : 'Expand slide'}
+            >
+              {isExpanded ? '▲' : '▼'}
+            </button>
           </div>
         </div>
         <div className={`mt-1 text-xs ${theme.secondaryTextAlt}`}>
