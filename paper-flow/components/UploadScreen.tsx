@@ -10,6 +10,7 @@ import { useState } from 'react';
 
 type Props = {
   onUploadComplete: (paperId: string) => void;
+  onLoadDemo?: () => void;
 }
 
 // /**
@@ -51,7 +52,10 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
   return btoa(binary);
 }
 
-export default function UploadScreen({ onUploadComplete }: Props) {
+// export default function UploadScreen({ onUploadComplete }: Props) {
+
+export default function UploadScreen({ onUploadComplete, onLoadDemo }: Props) {
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -111,6 +115,16 @@ export default function UploadScreen({ onUploadComplete }: Props) {
 
       {loading && <p className="text-sm text-zinc-500 dark:text-zinc-400">Processing PDF...</p>}
       {error && <p className="text-sm text-red-500">{error}</p>}
+
+      {onLoadDemo && (
+        <button
+          type="button"
+          onClick={onLoadDemo}
+          className="rounded-lg border border-paper-flow-border bg-transparent px-4 py-2 text-sm font-medium text-paper-flow-text transition-colors hover:bg-paper-flow-canvas-solid/50 dark:border-zinc-600 dark:text-zinc-200 dark:hover:bg-zinc-800"
+        >
+          Load demo (Octopus slides)
+        </button>
+      )}
     </div>
   );
 }

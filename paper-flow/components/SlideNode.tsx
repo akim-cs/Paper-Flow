@@ -5,6 +5,7 @@ import { Handle, Position, type NodeProps } from '@xyflow/react';
 import type { Slide } from '../app/types/slides';
 import { NODE_WIDTH, NODE_WIDTH_EXPANDED } from '../app/lib/slidesToFlowNodes';
 import { paperFlowTheme as theme } from '../app/lib/theme';
+import SlideNodeEditor from './SlideNodeEditor';
 
 type SlideNodeData = Slide & {
   label: string;
@@ -12,6 +13,7 @@ type SlideNodeData = Slide & {
   onExpandChange?: (expanded: boolean) => void;
   onTitleChange?: (title: string) => void;
   onSpeakerNotesChange?: (speaker_notes: string[]) => void;
+  onContentChange?: (contentMarkdown: string) => void;
   onInsertAfter?: (nodeId: string) => void;
   onDelete?: (nodeId: string) => void;
 };
@@ -21,10 +23,12 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
     title,
     speaker_notes = [],
     est_time,
+    contentMarkdown = '',
     isExpanded = false,
     onExpandChange,
     onTitleChange,
     onSpeakerNotesChange,
+    onContentChange,
     onInsertAfter,
     onDelete,
   } = data as SlideNodeData;
@@ -150,40 +154,14 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
 
       {/* Expanded content - editable talking points */}
       {isExpanded && (
-        <div className={`${theme.expandedBorder} ${theme.expandedBg} p-3 pt-2 break-words overflow-hidden rounded-b-xl`}>
+        <div className={`${theme.expandedBorder} ${theme.expandedBg} p-3 pt-2 break-words overflow-visible rounded-b-xl`}>
           <p className={`text-xs font-medium ${theme.expandedLabel} mb-1.5`}>Talking Points</p>
           <ul className="space-y-0.5">
-            {speaker_notes.map((note, idx) => (
-              <li key={idx} className="flex gap-2 items-start">
-                <span className={`${theme.noteBullet} text-xs leading-relaxed pt-[0.35rem] shrink-0 w-[0.5rem] text-center`}>•</span>
-                <textarea
-                  value={note}
-                  onChange={(e) => handleNoteChangeTextarea(idx, e)}
-                  onClick={(e) => e.stopPropagation()}
-                  rows={2}
-                  className={`flex-1 min-w-0 text-xs ${theme.noteText} leading-relaxed bg-transparent border-none outline-none ${theme.focusRing} rounded px-0.5 -mx-0.5 cursor-text resize-none overflow-hidden py-0 ${theme.notePlaceholder}`}
-                  placeholder="Talking point"
-                  style={{ minHeight: '1.25rem' }}
-                />
-              </li>
-            ))}
-            <li className="flex gap-2 items-start">
-              <span className={`${theme.noteBullet} text-xs leading-relaxed pt-[0.35rem] shrink-0 w-[0.5rem] text-center`}>•</span>
-              <textarea
-                value={newNoteDraft}
-                onChange={(e) => setNewNoteDraft(e.target.value)}
-                onBlur={commitNewNote}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    commitNewNote();
-                  }
-                }}
-                onClick={(e) => e.stopPropagation()}
-                rows={2}
-                className={`flex-1 min-w-0 text-xs ${theme.noteDraft} italic bg-transparent border-none outline-none ${theme.focusRing} rounded px-0.5 -mx-0.5 cursor-text resize-none overflow-hidden py-0 placeholder:italic ${theme.notePlaceholder}`}
-                placeholder="Add a talking point…"
-                style={{ minHeight: '1.25rem' }}
+            <li className="flex flex-col gap-0.5 items-stretch min-w-0 w-full">
+              <SlideNodeEditor
+                markdown={contentMarkdown}
+                onChange={(markdown) => onContentChange?.(markdown)}
+                contentEditableClassName="mdx-editor-content-prose min-h-[80px] text-paper-flow-text outline-none"
               />
             </li>
           </ul>

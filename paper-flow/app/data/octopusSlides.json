@@ -1,0 +1,37 @@
+[
+    {
+      "title": "Unpacking Octopus Intelligence: Distributed Minds in Problem-Solving",
+      "speaker_notes": [
+        "Octopus vulgaris exhibits cognitive complexities rare among invertebrates.",
+        "This study investigated their spatial problem-solving, focusing on tactile vs. visual sensory input.",
+        "We used transparent and opaque puzzle boxes to observe how they navigate complex latches.",
+        "Results show octopuses prioritize haptic feedback from their arms over visual confirmation.",
+        "This suggests a \"distributed\" cognitive model where intelligence is decentralized."
+      ],
+      "est_time": 1.5
+    },
+    {
+      "title": "Tactile-First Strategy: Experimental Design and Surprising Efficiency",
+      "speaker_notes": [
+        "Six sub-adult Octopus vulgaris were subjects in a \"Two-Stage Latch Box\" experiment.",
+        "Phase A (Visual): Clear boxes allowed visual cues of the reward and latch mechanism.",
+        "Phase B (Tactile): Opaque boxes forced reliance on chemical and tactile sensors in their suckers.",
+        "We measured Time to Entry (TTE) and Number of Errors (NE).",
+        "Surprisingly, octopuses showed no significant increase in TTE in opaque boxes, and some even solved puzzles faster, suggesting visual input can be a \"distractor.\""
+
+      ],
+      "est_time": 2
+    },
+    {
+      "title": "Decentralized Cognition: Implications and Future Research",
+      "speaker_notes": [   
+        "Our findings strongly support the hypothesis of Decentralized Cognition, where two-thirds of an octopus's neurons are in its arms.",
+        "In opaque boxes, the peripheral nervous system in the arms efficiently \"felt\" the mechanical logic of the latch.",
+        "Each sucker contains tens of thousands of chemoreceptors and mechanoreceptors, making tactile processing highly effective.",
+        "This raises significant questions about consciousness: Can an arm possess its own localized form of intent?",
+        "Future research should explore if arms can \"communicate\" mechanical solutions or if learning is localized to the specific limb used."
+      ],
+      "est_time": 1.5
+    }
+  ]
+  

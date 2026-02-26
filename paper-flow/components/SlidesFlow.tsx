@@ -43,6 +43,7 @@ function nodesToOrderedSlides(nodes: Node[]): Slide[] {
     title: node.data.title as string,
     speaker_notes: (node.data.speaker_notes as string[]) ?? [],
     est_time: (node.data.est_time as number) ?? 0,
+    contentMarkdown: node.data.contentMarkdown as string | undefined,
   }));
 }
 
@@ -86,6 +87,8 @@ function applyExpandLayout(nodes: Node[], expandedNodeIds: Set<string>): Node[] 
  * On node drag end, reorders slides by x position and snaps layout so edges reconnect automatically.
  */
 export default function SlidesFlow({ slides, onSlidesChange }: Props) {
+
+  // Recompute if any of the slide change
   const { nodes: initialNodes, edges: initialEdges } = useMemo(
     () => slidesToFlowNodes(slides),
     [slides]
@@ -95,6 +98,7 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const nodesRef = useRef(nodes);
   const insertIdRef = useRef(0);
+  // Track which nodes are in an expanded state
   const [expandedNodeIds, setExpandedNodeIds] = useState<Set<string>>(() => new Set());
 
   useEffect(() => {
@@ -104,12 +108,16 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
   // Sync nodes/edges from slides when parent data changes (e.g. after drag). Preserve current node
   // ids so expanded state stays on the same logical node after reorder (ids are not re-assigned by position).
   useEffect(() => {
+
+    // If we deleted all nodes
     if (initialNodes.length === 0) {
       setNodes([]);
       setEdges(initialEdges);
       return;
     }
     const current = nodesRef.current;
+
+    // Sort nodes by their x position on node drag end
     const sortedCurrent = [...current].sort(
       (a, b) => a.position.x - b.position.x || a.id.localeCompare(b.id)
     );
@@ -118,7 +126,11 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
         ? { ...fromParent, id: sortedCurrent[i].id }
         : fromParent
     );
+
+    // Re-expand nodes from before the drag
     const layouted = applyExpandLayout(merged, expandedNodeIds);
+
+    // Reconnect edges between nodes on new ordering
     const newEdges: Edge[] = layouted
       .slice(0, -1)
       .map((n, i) => ({
@@ -138,6 +150,8 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
 
   const handleExpandChange = useCallback((nodeId: string, expanded: boolean) => {
     setExpandedNodeIds((prev) => {
+
+      // Toggle expanded state of triggering node and create new set
       const next = new Set(prev);
       if (expanded) next.add(nodeId);
       else next.delete(nodeId);
@@ -157,6 +171,14 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
     setNodes((prev) =>
       prev.map((n) =>
         n.id === nodeId ? { ...n, data: { ...n.data, speaker_notes } } : n
+      )
+    );
+  }, [setNodes]);
+
+  const handleContentChange = useCallback((nodeId: string, contentMarkdown: string) => {
+    setNodes((prev) =>
+      prev.map((n) =>
+        n.id === nodeId ? { ...n, data: { ...n.data, contentMarkdown } } : n
       )
     );
   }, [setNodes]);
@@ -274,6 +296,7 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
           onTitleChange: (title: string) => handleTitleChange(n.id, title),
           onSpeakerNotesChange: (speaker_notes: string[]) =>
             handleSpeakerNotesChange(n.id, speaker_notes),
+          onContentChange: (contentMarkdown: string) => handleContentChange(n.id, contentMarkdown),
           onInsertAfter: (nodeId: string) => handleInsertAfter(nodeId),
           onDelete: (nodeId: string) => handleDelete(nodeId),
         },
@@ -284,6 +307,7 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
       handleExpandChange,
       handleTitleChange,
       handleSpeakerNotesChange,
+      handleContentChange,
       handleInsertAfter,
       handleDelete,
     ]

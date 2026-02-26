@@ -37,7 +37,118 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Let slide nodes show full title (no clipping when auto-grow) */
-.react-flow__node {
-  overflow: visible !important;
+
+/* Crepe editor container – prevent squishing inside slide node */
+.otto-editor-container {
+  min-height: 7.5rem;
+  width: 100%;
+  display: block;
+}
+
+/* This targets the Milkdown editor directly, regardless of what you named your wrapper */
+.milkdown {
+  margin: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  min-height: 100% !important;
+}
+
+.milkdown .editor {
+  padding: 10px !important; /* This controls the inner margin of the text */
+  margin: 0 !important;
+  max-width: 100% !important;
+  min-height: 6rem !important;
+}
+
+
+/* This is often what causes the "wonky" wide margins in Crepe */
+.milkdown .crepe-common-content {
+  max-width: 100% !important;
+  padding: 0 !important;
+}
+
+/* -------------------------------------------------------------------------
+   MDXEditor content area – rich text (headings, lists, blockquote) styling
+   -------------------------------------------------------------------------
+   In @layer components so these override Tailwind's base (preflight), which
+   resets h1–h6 to font-size/weight: inherit. MDXEditor doesn't style content;
+   Lexical just renders <h1>, <h2>, etc., so we restore visible formatting here.
+   ------------------------------------------------------------------------- */
+@layer components {
+  .mdx-editor-content-prose {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--color-paper-flow-text, #092e4c);
+  }
+
+  .mdx-editor-content-prose h1 {
+    font-size: 1.5em;
+    font-weight: 700;
+    margin: 0.5em 0 0.25em;
+    line-height: 1.25;
+  }
+
+  .mdx-editor-content-prose h2 {
+    font-size: 1.25em;
+    font-weight: 700;
+    margin: 0.5em 0 0.25em;
+    line-height: 1.3;
+  }
+
+  .mdx-editor-content-prose h3 {
+    font-size: 1.125em;
+    font-weight: 600;
+    margin: 0.4em 0 0.2em;
+    line-height: 1.35;
+  }
+
+  .mdx-editor-content-prose h4,
+  .mdx-editor-content-prose h5,
+  .mdx-editor-content-prose h6 {
+    font-size: 1em;
+    font-weight: 600;
+    margin: 0.35em 0 0.2em;
+    line-height: 1.4;
+  }
+
+  .mdx-editor-content-prose p {
+    margin: 0.35em 0;
+  }
+
+  .mdx-editor-content-prose ul,
+  .mdx-editor-content-prose ol {
+    margin: 0.35em 0;
+    padding-left: 1.5em;
+  }
+
+  .mdx-editor-content-prose ul {
+    list-style-type: disc;
+  }
+
+  .mdx-editor-content-prose ol {
+    list-style-type: decimal;
+  }
+
+  .mdx-editor-content-prose blockquote {
+    margin: 0.5em 0;
+    padding-left: 1em;
+    border-left: 3px solid var(--color-paper-flow-border, #8596b4);
+    color: var(--color-paper-flow-text, #092e4c);
+    opacity: 0.95;
+  }
+
+  .mdx-editor-content-prose code {
+    font-size: 0.9em;
+    padding: 0.15em 0.35em;
+    border-radius: 4px;
+    background: var(--color-paper-flow-canvas-solid, #f3d8d2);
+  }
+
+  .mdx-editor-content-prose strong {
+    font-weight: 700;
+  }
+
+  .mdx-editor-content-prose em {
+    font-style: italic;
+  }
 }

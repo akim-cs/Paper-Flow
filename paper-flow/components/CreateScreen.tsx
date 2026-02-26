@@ -5,6 +5,9 @@ import type { Slide, PresentationConfig } from '../app/types/slides';
 import UploadScreen from './UploadScreen';
 import ConfigScreen from './ConfigScreen';
 import SlidesFlow from './SlidesFlow';
+import octopusSlidesData from '../app/data/octopusSlides.json';
+
+const octopusSlides = octopusSlidesData as Slide[];
 
 /**
  * Holds slides state and decides whether to show the upload screen, config, or the flow.
@@ -15,6 +18,12 @@ export default function CreateScreen() {
   const [slides, setSlides] = useState<Slide[] | null>(null);
   const [config, setConfig] = useState<PresentationConfig | null>(null);
 
+  const handleLoadDemo = () => {
+    setPaperId('demo');
+    setConfig({ audienceLevel: 'intermediate', timeLimit: 10 });
+    setSlides(octopusSlides);
+  };
+
   // Step 1: Upload screen
   if (!paperId) {
     return (
@@ -22,6 +31,7 @@ export default function CreateScreen() {
         onUploadComplete={(newPaperId: string) => {
           setPaperId(newPaperId);
         }}
+        onLoadDemo={handleLoadDemo}
       />
     );
   }
