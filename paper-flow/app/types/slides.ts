@@ -3,7 +3,7 @@
  */
 export type Slide = {
   title: string;
-  speaker_notes: string[];
+  speaker_notes?: string[];
   est_time: number;
   /** Richtext markdown body (e.g. from MDXEditor in slide node). Optional so we can switch out later*/
   contentMarkdown?: string;

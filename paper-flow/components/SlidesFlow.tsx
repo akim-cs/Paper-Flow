@@ -167,13 +167,13 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
     );
   }, [setNodes]);
 
-  const handleSpeakerNotesChange = useCallback((nodeId: string, speaker_notes: string[]) => {
-    setNodes((prev) =>
-      prev.map((n) =>
-        n.id === nodeId ? { ...n, data: { ...n.data, speaker_notes } } : n
-      )
-    );
-  }, [setNodes]);
+  // const handleSpeakerNotesChange = useCallback((nodeId: string, speaker_notes: string[]) => {
+  //   setNodes((prev) =>
+  //     prev.map((n) =>
+  //       n.id === nodeId ? { ...n, data: { ...n.data, speaker_notes } } : n
+  //     )
+  //   );
+  // }, [setNodes]);
 
   const handleContentChange = useCallback((nodeId: string, contentMarkdown: string) => {
     setNodes((prev) =>
@@ -294,8 +294,8 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
           isExpanded: expandedNodeIds.has(n.id),
           onExpandChange: (expanded: boolean) => handleExpandChange(n.id, expanded),
           onTitleChange: (title: string) => handleTitleChange(n.id, title),
-          onSpeakerNotesChange: (speaker_notes: string[]) =>
-            handleSpeakerNotesChange(n.id, speaker_notes),
+          // onSpeakerNotesChange: (speaker_notes: string[]) =>
+          //   handleSpeakerNotesChange(n.id, speaker_notes),
           onContentChange: (contentMarkdown: string) => handleContentChange(n.id, contentMarkdown),
           onInsertAfter: (nodeId: string) => handleInsertAfter(nodeId),
           onDelete: (nodeId: string) => handleDelete(nodeId),
@@ -306,7 +306,7 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
       expandedNodeIds,
       handleExpandChange,
       handleTitleChange,
-      handleSpeakerNotesChange,
+      // handleSpeakerNotesChange,
       handleContentChange,
       handleInsertAfter,
       handleDelete,

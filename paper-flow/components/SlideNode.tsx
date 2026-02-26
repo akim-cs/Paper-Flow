@@ -12,7 +12,7 @@ type SlideNodeData = Slide & {
   isExpanded?: boolean;
   onExpandChange?: (expanded: boolean) => void;
   onTitleChange?: (title: string) => void;
-  onSpeakerNotesChange?: (speaker_notes: string[]) => void;
+  // onSpeakerNotesChange?: (speaker_notes: string[]) => void;
   onContentChange?: (contentMarkdown: string) => void;
   onInsertAfter?: (nodeId: string) => void;
   onDelete?: (nodeId: string) => void;
@@ -27,7 +27,7 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
     isExpanded = false,
     onExpandChange,
     onTitleChange,
-    onSpeakerNotesChange,
+    // onSpeakerNotesChange,
     onContentChange,
     onInsertAfter,
     onDelete,
@@ -58,29 +58,29 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
     [onTitleChange]
   );
 
-  const handleNoteChange = useCallback(
-    (idx: number, value: string) => {
-      const next = [...speaker_notes];
-      next[idx] = value;
-      onSpeakerNotesChange?.(next);
-    },
-    [speaker_notes, onSpeakerNotesChange]
-  );
+  // const handleNoteChange = useCallback(
+  //   (idx: number, value: string) => {
+  //     const next = [...speaker_notes];
+  //     next[idx] = value;
+  //     onSpeakerNotesChange?.(next);
+  //   },
+  //   [speaker_notes, onSpeakerNotesChange]
+  // );
 
-  const handleNoteChangeTextarea = useCallback(
-    (idx: number, e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      handleNoteChange(idx, e.target.value);
-    },
-    [handleNoteChange]
-  );
+  // const handleNoteChangeTextarea = useCallback(
+  //   (idx: number, e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  //     handleNoteChange(idx, e.target.value);
+  //   },
+  //   [handleNoteChange]
+  // );
 
-  const commitNewNote = useCallback(() => {
-    const v = newNoteDraft.trim();
-    if (v) {
-      onSpeakerNotesChange?.([...speaker_notes, v]);
-      setNewNoteDraft('');
-    }
-  }, [newNoteDraft, speaker_notes, onSpeakerNotesChange]);
+  // const commitNewNote = useCallback(() => {
+  //   const v = newNoteDraft.trim();
+  //   if (v) {
+  //     onSpeakerNotesChange?.([...speaker_notes, v]);
+  //     setNewNoteDraft('');
+  //   }
+  // }, [newNoteDraft, speaker_notes, onSpeakerNotesChange]);
 
   return (
     <div

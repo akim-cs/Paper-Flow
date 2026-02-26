@@ -5,9 +5,9 @@ import type { Slide, PresentationConfig } from '../app/types/slides';
 import UploadScreen from './UploadScreen';
 import ConfigScreen from './ConfigScreen';
 import SlidesFlow from './SlidesFlow';
-import octopusSlidesData from '../app/data/octopusSlides.json';
+import octopusMarkdown from '../app/data/octopusMarkdown.json';
 
-const octopusSlides = octopusSlidesData as Slide[];
+const octopusSlides = octopusMarkdown as Slide[];
 
 /**
  * Holds slides state and decides whether to show the upload screen, config, or the flow.
