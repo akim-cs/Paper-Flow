@@ -105,7 +105,7 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
         <div className="flex items-start justify-between gap-2">
           <textarea
             ref={titleRef}
-            value={title.trimEnd()}
+            value={title}
             onChange={handleTitleChange}
             onClick={(e) => e.stopPropagation()}
             rows={1}
