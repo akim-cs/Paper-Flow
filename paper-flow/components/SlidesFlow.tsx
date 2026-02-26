@@ -160,12 +160,16 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
   }, []);
 
   const handleTitleChange = useCallback((nodeId: string, title: string) => {
-    setNodes((prev) =>
-      prev.map((n) =>
+    setNodes((prev) => {
+      const updated = prev.map((n) =>
         n.id === nodeId ? { ...n, data: { ...n.data, title } } : n
-      )
-    );
-  }, [setNodes]);
+      );
+      if (onSlidesChange) {
+        setTimeout(() => onSlidesChange(nodesToOrderedSlides(updated)), 0);
+      }
+      return updated;
+    });
+  }, [setNodes, onSlidesChange]);
 
   // const handleSpeakerNotesChange = useCallback((nodeId: string, speaker_notes: string[]) => {
   //   setNodes((prev) =>
@@ -176,12 +180,16 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
   // }, [setNodes]);
 
   const handleContentChange = useCallback((nodeId: string, contentMarkdown: string) => {
-    setNodes((prev) =>
-      prev.map((n) =>
+    setNodes((prev) => {
+      const updated = prev.map((n) =>
         n.id === nodeId ? { ...n, data: { ...n.data, contentMarkdown } } : n
-      )
-    );
-  }, [setNodes]);
+      );
+      if (onSlidesChange) {
+        setTimeout(() => onSlidesChange(nodesToOrderedSlides(updated)), 0);
+      }
+      return updated;
+    });
+  }, [setNodes, onSlidesChange]);
 
   const handleDelete = useCallback(
     (nodeId: string) => {
