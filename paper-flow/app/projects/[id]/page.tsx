@@ -20,12 +20,15 @@ function ProjectEditorContent() {
 
   const [project, setProject] = useState<Project | null>(null);
   const [slides, setSlides] = useState<Slide[]>([]);
+  const [projectName, setProjectName] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('saved');
 
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const nameTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const slidesRef = useRef<Slide[]>([]);
+  const nameRef = useRef<string>('');
 
   useEffect(() => {
     async function loadProject() {
@@ -46,7 +49,9 @@ function ProjectEditorContent() {
 
         setProject(loadedProject);
         setSlides(loadedProject.slides);
+        setProjectName(loadedProject.name);
         slidesRef.current = loadedProject.slides;
+        nameRef.current = loadedProject.name;
       } catch (err) {
         console.error('Failed to load project:', err);
         setError('Failed to load project');
@@ -69,6 +74,17 @@ function ProjectEditorContent() {
     }
   }, [projectId]);
 
+  const saveProjectName = useCallback(async (name: string) => {
+    setSaveStatus('saving');
+    try {
+      await updateProject(projectId, { name });
+      setSaveStatus('saved');
+    } catch (err) {
+      console.error('Failed to save project name:', err);
+      setSaveStatus('error');
+    }
+  }, [projectId]);
+
   const handleSlidesChange = useCallback((newSlides: Slide[]) => {
     setSlides(newSlides);
     slidesRef.current = newSlides;
@@ -84,11 +100,29 @@ function ProjectEditorContent() {
     }, 2000);
   }, [saveSlides]);
 
-  // Cleanup timeout on unmount
+  const handleNameChange = useCallback((newName: string) => {
+    setProjectName(newName);
+    nameRef.current = newName;
+    setSaveStatus('unsaved');
+
+    // Debounced auto-save (2 second delay)
+    if (nameTimeoutRef.current) {
+      clearTimeout(nameTimeoutRef.current);
+    }
+
+    nameTimeoutRef.current = setTimeout(() => {
+      saveProjectName(nameRef.current);
+    }, 2000);
+  }, [saveProjectName]);
+
+  // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
+      }
+      if (nameTimeoutRef.current) {
+        clearTimeout(nameTimeoutRef.current);
       }
     };
   }, []);
@@ -133,9 +167,9 @@ function ProjectEditorContent() {
   return (
     <div className="flex min-h-screen flex-col bg-paper-flow-canvas">
       <header className="border-b border-paper-flow-border bg-paper-flow-border px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/projects" className="text-white hover:text-white/80">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4 flex-1 min-w-0">
+            <Link href="/projects" className="text-white hover:text-white/80 flex-shrink-0">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-6 w-6"
@@ -154,10 +188,16 @@ function ProjectEditorContent() {
             <img
               src="/lineart_boat.png"
               alt="Paper Flow"
-              className="h-12 w-auto rounded-xl"
+              className="h-12 w-auto rounded-xl flex-shrink-0"
             />
-            <div>
-              <h1 className="text-xl font-bold text-white">{project.name}</h1>
+            <div className="flex-1 min-w-0">
+              <input
+                type="text"
+                value={projectName}
+                onChange={(e) => handleNameChange(e.target.value)}
+                className="bg-transparent text-xl font-bold text-white outline-none border-none focus:ring-0 px-0 py-0 w-full placeholder:text-white/50"
+                placeholder="Untitled Project"
+              />
               <div className="flex items-center gap-2 text-sm text-white/70">
                 <span>{slides.length} slides</span>
                 <span>·</span>
@@ -168,7 +208,7 @@ function ProjectEditorContent() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <span
               className={`text-sm ${
                 saveStatus === 'saved'
