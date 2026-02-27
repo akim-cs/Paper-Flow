@@ -191,7 +191,7 @@ function NewProjectContent() {
                     onClick={() => setAudienceLevel(level)}
                     className={`flex-1 py-2 text-sm font-medium capitalize transition-colors ${
                       audienceLevel === level
-                        ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900'
+                        ? 'bg-paper-flow-border text-white'
                         : 'bg-white text-zinc-700 hover:bg-zinc-100 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800'
                     }`}
                   >
@@ -221,7 +221,7 @@ function NewProjectContent() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-lg bg-zinc-900 py-3 font-medium text-white hover:bg-zinc-800 disabled:opacity-50 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
+              className="w-full rounded-lg bg-paper-flow-border py-3 font-medium text-white hover:bg-paper-flow-border/80 disabled:opacity-50"
             >
               Generate Slides
             </button>
