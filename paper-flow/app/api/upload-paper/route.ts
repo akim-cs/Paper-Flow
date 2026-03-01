@@ -1,25 +1,26 @@
 import { NextResponse } from "next/server";
-import { extractPdfText } from "@/app/lib/gemini/helpers";
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { file } = body;
+    const formData = await req.formData();
 
-    if (!file) {
-      return NextResponse.json({ error: "No PDF file provided" }, { status: 400});
+    const response = await fetch("http://localhost:8000/extract", {
+      method: "POST",
+      body: formData
+    });
+
+    if (!response.ok) {
+      throw new Error("Python backend failed");
     }
 
-    const fileBuffer = Uint8Array.from(atob(file), c => c.charCodeAt(0));
+    const data = await response.json();
 
-    const extractedText = await extractPdfText(fileBuffer);
-
-    return NextResponse.json({ extractedText });
+    return NextResponse.json({ extractedText: data.text });
   } catch (err) {
     console.error("Error in upload-paper", err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message: "Unknown error" },
+      { error: err instanceof Error ? err.message : "Unknown error" },
       { status: 500 }
-    )
+    );
   }
 }

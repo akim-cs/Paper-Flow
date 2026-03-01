@@ -1,16 +1,18 @@
-// ============================
-// 0) PDF TEXT EXTRACTION PROMPT
-// ============================
-export const PDF_EXTRACT_PROMPT = `
-Extract all readable text from this academic paper PDF.
+// TODO: Delete PDF Text Prompt
 
-Rules:
-- Preserve reading order.
-- Remove headers, footers, page numbers, and watermarks.
-- Do NOT summarize, rewrite, or correct grammar.
-- Include all tables and figures in text form.
-- Output plain text only.
-`
+// // ============================
+// // 0) PDF TEXT EXTRACTION PROMPT
+// // ============================
+// export const PDF_EXTRACT_PROMPT = `
+// Extract all readable text from this academic paper PDF.
+
+// Rules:
+// - Preserve reading order.
+// - Remove headers, footers, page numbers, and watermarks.
+// - Do NOT summarize, rewrite, or correct grammar.
+// - Include all tables and figures in text form.
+// - Output plain text only.
+// `
 
 // ============================
 // 1) SECTION CLASSIFICATION PROMPT

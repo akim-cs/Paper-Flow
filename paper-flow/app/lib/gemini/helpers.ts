@@ -1,5 +1,6 @@
 import { geminiText, geminiVision } from "./client";
-import { PDF_EXTRACT_PROMPT, SECTION_PROMPT, OUTLINE_PROMPT, SLIDES_PROMPT} from "./prompts";
+// TODO: delete pdf prompt
+import { /*PDF_EXTRACT_PROMPT,*/ SECTION_PROMPT, OUTLINE_PROMPT, SLIDES_PROMPT} from "./prompts";
 import { Sections, OutlineItem, Slide, PresentationConfig } from "@/app/types/slides"
 
 export function cleanJsonString(raw: string): string {
@@ -23,12 +24,13 @@ export function chunkText(text: string, maxChunkSize: number = 8000): string[] {
   return chunks;
 }
 
-// --- PDF Text Extraction ---
-export async function extractPdfText(fileBuffer: Uint8Array): Promise<string> {
-  const text = await geminiVision(fileBuffer, PDF_EXTRACT_PROMPT);
-  if (!text) throw new Error("Gemini returned no text for PDF")
-  return text;
-}
+// TODO: delete extract pdf method
+// // --- PDF Text Extraction ---
+// export async function extractPdfText(fileBuffer: Uint8Array): Promise<string> {
+//   const text = await geminiVision(fileBuffer, PDF_EXTRACT_PROMPT);
+//   if (!text) throw new Error("Gemini returned no text for PDF")
+//   return text;
+// }
 
 // --- Parse Sections ---
 export async function parseSections(text: string) {

@@ -45,14 +45,23 @@ function NewProjectContent() {
     setOriginalFileName(file.name);
 
     try {
-      const arrayBuffer = await file.arrayBuffer();
-      const base64 = arrayBufferToBase64(arrayBuffer);
+      const formData = new FormData();
+      formData.append("file", file);
 
-      const res = await fetch('/api/upload-paper', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ file: base64 }),
-      });
+      const res = await fetch("/api/upload-paper", {
+        method: "POST",
+        body: formData
+      })
+
+      // TODO: delete
+      // const arrayBuffer = await file.arrayBuffer();
+      // const base64 = arrayBufferToBase64(arrayBuffer);
+
+      // const res = await fetch('/api/upload-paper', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ file: base64 }),
+      // });
 
       if (!res.ok) {
         const data = await res.json();
