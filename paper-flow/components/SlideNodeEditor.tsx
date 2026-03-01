@@ -26,7 +26,7 @@ export default function SlideNodeEditor({
   ...props
 }: SlideNodeEditorProps) {
   return (
-    <div className={`nodrag nopan min-h-[120px] w-full [&_.mdx-editor]:!min-h-[100px] ${className}`}>
+    <div className={`nodrag nopan min-h-[120px] w-full [&_.mdx-editor]:!min-h-[100px] ${className} cursor-text`}>
       <InitializedMDXEditor {...props} />
     </div>
   );

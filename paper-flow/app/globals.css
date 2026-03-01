@@ -152,3 +152,8 @@ body {
     font-style: italic;
   }
 }
+
+/* Customize edge path width */
+path.react-flow__edge-path {
+  stroke-width: 3px;
+}

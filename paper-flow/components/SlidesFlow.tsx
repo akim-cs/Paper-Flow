@@ -204,6 +204,7 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
       const index = sorted.findIndex((n) => n.id === nodeId);
       if (index === -1) return;
 
+      // const newSlide: Slide = { title: '', est_time: 0, contentMarkdown: '' };
       const newId = `slide-insert-${++insertIdRef.current}`;
       const isLast = index === sorted.length - 1;
       const newX = isLast ? xAfter(sorted[index]) : xBetween(sorted[index], sorted[index + 1]);
