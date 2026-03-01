@@ -1,8 +1,11 @@
 'use client';
 
+import { useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import type { MDXEditorProps } from '@mdxeditor/editor';
 import "@mdxeditor/editor/style.css";
+
+const TALKING_POINTS_HEADER = '# Talking Points\n';
 
 const InitializedMDXEditor = dynamic(() => import('./InitializedMDXEditor'), {
   ssr: false,
@@ -19,15 +22,28 @@ type SlideNodeEditorProps = MDXEditorProps & {
 
 /**
  * Rich markdown editor for slide nodes. Dynamically loaded (no SSR).
+ * Displays content under a "# Talking Points" header; only the content (without the header) is passed to onChange for saving.
  * Use className "nodrag nopan" so React Flow doesn't capture drag/pan when editing.
  */
 export default function SlideNodeEditor({
   className = '',
+  markdown = '',
+  onChange,
   ...props
 }: SlideNodeEditorProps) {
+  const displayMarkdown = TALKING_POINTS_HEADER + (markdown ?? '');
+  const handleChange = useCallback(
+    (newMarkdown: string, initialMarkdownNormalize?: boolean) => {
+      const toSave = newMarkdown.startsWith(TALKING_POINTS_HEADER)
+        ? newMarkdown.slice(TALKING_POINTS_HEADER.length)
+        : newMarkdown;
+      onChange?.(toSave, initialMarkdownNormalize ?? false);
+    },
+    [onChange]
+  );
   return (
     <div className={`nodrag nopan min-h-[120px] w-full [&_.mdx-editor]:!min-h-[100px] ${className} cursor-text`}>
-      <InitializedMDXEditor {...props} />
+      <InitializedMDXEditor {...props} markdown={displayMarkdown} onChange={handleChange} />
     </div>
   );
 }
