@@ -23,6 +23,7 @@ import {
   NODE_WIDTH_EXPANDED,
   HORIZONTAL_GAP,
 } from '../app/lib/slidesToFlowNodes';
+import { downloadSlidesAsPptx } from '../app/lib/export/slidesToPptx';
 import SlideNode from './SlideNode';
 
 const nodeTypes: Record<string, ComponentType<any>> = {
@@ -260,6 +261,12 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
     );
   };
 
+  const handleDownloadPptx = useCallback(() => {
+    const orderedSlides = nodesToOrderedSlides(nodes);
+    if (orderedSlides.length === 0) return;
+    downloadSlidesAsPptx(orderedSlides, 'PaperFlow.pptx');
+  }, [nodes]);
+
   const displayNodes = useMemo(
     () =>
       nodes.map((n) => ({
@@ -278,7 +285,19 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
   );
 
   return (
-    <div className="h-[80vh] w-full rounded-xl border border-paper-flow-border bg-white dark:bg-zinc-950">
+    <div className="h-[80vh] w-full flex flex-col rounded-xl border border-paper-flow-border bg-white dark:bg-zinc-950">
+      <div className="flex-shrink-0 flex items-center justify-end gap-2 px-3 py-2 border-b border-paper-flow-border bg-paper-flow-canvas-solid/50 rounded-t-xl">
+        <button
+          type="button"
+          onClick={handleDownloadPptx}
+          disabled={nodes.length === 0}
+          className="px-3 py-1.5 text-sm font-medium rounded-lg border border-paper-flow-border bg-white dark:bg-zinc-900 text-paper-flow-text hover:bg-paper-flow-border/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          title={nodes.length === 0 ? 'No slides to export' : 'Download as PowerPoint (.pptx)'}
+        >
+          Download as PPTX
+        </button>
+      </div>
+      <div className="flex-1 min-h-0 h-full rounded-b-xl overflow-hidden">
       <ReactFlow
         nodes={displayNodes}
         edges={edges}
@@ -295,6 +314,7 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
         <Controls />
         <MiniMap />
       </ReactFlow>
+      </div>
     </div>
   );
 }
