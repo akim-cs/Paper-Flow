@@ -80,32 +80,6 @@ export async function generateOutline(
 }
 
 // --- Generate Nodes ---
-// export async function generateNodes(
-//   outline: OutlineItem[],
-//   sections: Sections,
-//   config?: PresentationConfig
-// ): Promise<Slide[]>{
-//   const promptWithConfig = SLIDES_PROMPT(JSON.stringify(outline), JSON.stringify(sections), config?.timeLimit) +
-//     (config
-//       ? `\nAudience Level: ${config.audienceLevel}\nTime Limit: ${config.timeLimit} minutes`
-//       : "");
-//   const nodesJson = await geminiText(promptWithConfig)
-
-//   if (!nodesJson) {
-//     throw new Error("Gemini returned undefined for nodes")
-//   }
-
-//   const cleaned = cleanJsonString(nodesJson);
-
-//   try {
-//     const nodes = JSON.parse(cleaned)
-//     return nodes
-//   } catch (err) {
-//     console.error("Failed to parse nodes JSON:", err)
-//     throw new Error("Gemini returned invalid JSON for nodes")
-//   }
-// }
-
 export async function generateNodes(
   outline: OutlineItem[],
   sections: Sections,
@@ -131,31 +105,55 @@ export async function generateNodes(
   return parseMarkdownSlides(markdown);
 }
 
-function parseMarkdownSlides(markdown: string): Slide[] {
-  const slideBlocks = markdown.split(/\n---\n/);
+// function parseMarkdownSlides(markdown: string): Slide[] {
+//   const slideBlocks = markdown.split(/\n---\n/);
 
-  return slideBlocks.map((block) => {
+//   return slideBlocks.map((block) => {
+//     const titleMatch = block.match(/##\s*(.+)/);
+//     const timeMatch = block.match(/Estimated Time:\s*(\d+)/);
+//     const bulletMatches = block.match(/^- (.+)/gm);
+
+//     const title = titleMatch?.[1]?.trim() ?? "Untitled Slide";
+//     const est_time = timeMatch ? Number(timeMatch[1]) : 2;
+
+//     const speaker_notes = bulletMatches
+//       ? bulletMatches.map(b => b.replace(/^- /, "").trim())
+//       : [];
+
+//     const cleanedMarkdown = block
+//       .replace(/##\s*.+/, "")
+//       .replace(/Estimated Time:\s*\d+.*\n?/, "")
+//       .trim();
+
+//     return {
+//       title,
+//       est_time,
+//       speaker_notes,
+//       contentMarkdown: cleanedMarkdown,
+//     };
+//   });
+// }
+
+function parseMarkdownSlides(markdown: string): Slide[] {
+  const blocks = markdown.split(/\n---\n/);
+
+  return blocks.map((block, index) => {
     const titleMatch = block.match(/##\s*(.+)/);
-    const timeMatch = block.match(/Estimated Time:\s*(\d+)/);
-    const bulletMatches = block.match(/^- (.+)/gm);
+    const timeMatch = block.match(/Estimated Time:\s*([\d.]+)/);
 
     const title = titleMatch?.[1]?.trim() ?? "Untitled Slide";
     const est_time = timeMatch ? Number(timeMatch[1]) : 2;
 
-    const speaker_notes = bulletMatches
-      ? bulletMatches.map(b => b.replace(/^- /, "").trim())
-      : [];
-
-    const cleanedMarkdown = block
-      .replace(/##\s*.+/, "")
-      .replace(/Estimated Time:\s*\d+.*\n?/, "")
+    const contentMarkdown = block
+      .replace(/##\s*.+\n?/, "")
+      .replace(/Estimated Time:\s*[\d.]+.*\n?/, "")
       .trim();
 
     return {
+      id: `slide-${index}`,
       title,
       est_time,
-      speaker_notes,
-      contentMarkdown: cleanedMarkdown,
+      contentMarkdown,
     };
   });
 }

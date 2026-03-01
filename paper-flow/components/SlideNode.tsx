@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, memo, useCallback, useRef, useEffect } from 'react';
+import { memo, useCallback, useRef, useEffect } from 'react';
 import { Handle, Position, type NodeProps } from '@xyflow/react';
 import type { Slide } from '../app/types/slides';
 import { NODE_WIDTH, NODE_WIDTH_EXPANDED } from '../app/lib/slidesToFlowNodes';
@@ -12,7 +12,6 @@ type SlideNodeData = Slide & {
   isExpanded?: boolean;
   onExpandChange?: (expanded: boolean) => void;
   onTitleChange?: (title: string) => void;
-  // onSpeakerNotesChange?: (speaker_notes: string[]) => void;
   onContentChange?: (contentMarkdown: string) => void;
   onInsertAfter?: (nodeId: string) => void;
   onDelete?: (nodeId: string) => void;
@@ -21,30 +20,30 @@ type SlideNodeData = Slide & {
 function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
   const {
     title,
-    speaker_notes = [],
     est_time,
     contentMarkdown = '',
     isExpanded = false,
     onExpandChange,
     onTitleChange,
-    // onSpeakerNotesChange,
     onContentChange,
     onInsertAfter,
     onDelete,
   } = data as SlideNodeData;
-  const [newNoteDraft, setNewNoteDraft] = useState('');
+
   const titleRef = useRef<HTMLTextAreaElement | null>(null);
 
-  // Auto-grow title so full text is visible when collapsed or expanded; defer so we measure after layout.
+  // Auto-grow title so full text is visible when collapsed or expanded.
   useEffect(() => {
     const el = titleRef.current;
     if (!el) return;
+
     const run = () => {
       el.style.height = 'auto';
       el.style.height = `${Math.max(el.scrollHeight, 24)}px`;
     };
-    const id = requestAnimationFrame(() => run());
-    return () => cancelAnimationFrame(id);
+
+    const raf = requestAnimationFrame(run);
+    return () => cancelAnimationFrame(raf);
   }, [title, isExpanded]);
 
   const handleToggle = useCallback(() => {
@@ -57,30 +56,6 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
     },
     [onTitleChange]
   );
-
-  // const handleNoteChange = useCallback(
-  //   (idx: number, value: string) => {
-  //     const next = [...speaker_notes];
-  //     next[idx] = value;
-  //     onSpeakerNotesChange?.(next);
-  //   },
-  //   [speaker_notes, onSpeakerNotesChange]
-  // );
-
-  // const handleNoteChangeTextarea = useCallback(
-  //   (idx: number, e: React.ChangeEvent<HTMLTextAreaElement>) => {
-  //     handleNoteChange(idx, e.target.value);
-  //   },
-  //   [handleNoteChange]
-  // );
-
-  // const commitNewNote = useCallback(() => {
-  //   const v = newNoteDraft.trim();
-  //   if (v) {
-  //     onSpeakerNotesChange?.([...speaker_notes, v]);
-  //     setNewNoteDraft('');
-  //   }
-  // }, [newNoteDraft, speaker_notes, onSpeakerNotesChange]);
 
   return (
     <div
@@ -97,11 +72,8 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
         className={`!w-2 !h-2 ${theme.handleBorder} ${theme.handleBg}`}
       />
 
-      {/* Header - editable title (wraps); rest of header clickable to expand/collapse */}
-      <div
-        className="p-3 break-words overflow-visible cursor-pointer"
-        onClick={handleToggle}
-      >
+      {/* Header - editable title; rest clickable to expand/collapse */}
+      <div className="p-3 break-words overflow-visible cursor-pointer" onClick={handleToggle}>
         <div className="flex items-start justify-between gap-2">
           <textarea
             ref={titleRef}
@@ -113,6 +85,7 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
             placeholder="Slide title"
             style={{ minHeight: '1.5rem', wordBreak: 'break-word', overflowWrap: 'break-word' }}
           />
+
           <div className="flex flex-col items-center gap-0.2 flex-shrink-0">
             {onInsertAfter && (
               <button
@@ -128,6 +101,7 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
                 ⊕
               </button>
             )}
+
             {onDelete && (
               <button
                 type="button"
@@ -142,6 +116,7 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
                 ×
               </button>
             )}
+
             <button
               type="button"
               onClick={handleToggle}
@@ -153,24 +128,21 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
             </button>
           </div>
         </div>
-        <div className={`mt-1 text-xs ${theme.secondaryTextAlt}`}>
-          {est_time} min
-        </div>
+
+        <div className={`mt-1 text-xs ${theme.secondaryTextAlt}`}>{est_time} min</div>
       </div>
 
-      {/* Expanded content - editable talking points */}
+      {/* Expanded content - Markdown editor */}
       {isExpanded && (
         <div className={`${theme.expandedBorder} ${theme.expandedBg} p-3 pt-2 break-words overflow-visible rounded-b-xl`}>
-          <p className={`text-xs font-medium ${theme.expandedLabel} mb-1.5`}>Talking Points</p>
-          <ul className="space-y-0.5">
-            <li className="flex flex-col gap-0.5 items-stretch min-w-0 w-full">
-              <SlideNodeEditor
-                markdown={contentMarkdown}
-                onChange={(markdown) => onContentChange?.(markdown)}
-                contentEditableClassName="mdx-editor-content-prose min-h-[80px] text-paper-flow-text outline-none"
-              />
-            </li>
-          </ul>
+          <p className={`text-xs font-medium ${theme.expandedLabel} mb-1.5`}>Notes</p>
+          <div className="min-w-0 w-full">
+            <SlideNodeEditor
+              markdown={contentMarkdown}
+              onChange={(markdown) => onContentChange?.(markdown)}
+              contentEditableClassName="mdx-editor-content-prose min-h-[80px] text-paper-flow-text outline-none"
+            />
+          </div>
         </div>
       )}
 

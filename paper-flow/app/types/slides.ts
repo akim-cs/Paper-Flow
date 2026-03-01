@@ -2,12 +2,11 @@
  * One slide from the API (mockSlides.json shape).
  */
 export type Slide = {
-  title: string;
-  speaker_notes?: string[];
-  est_time: number;
-  /** Richtext markdown body (e.g. from MDXEditor in slide node). Optional so we can switch out later*/
-  contentMarkdown?: string;
-};
+  id: string
+  title: string
+  est_time: number
+  contentMarkdown: string
+}
 
 /**
  * User-provided presentation configuration.
