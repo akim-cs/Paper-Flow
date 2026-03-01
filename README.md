@@ -45,6 +45,7 @@ An AI-powered tool that transforms academic research papers into interactive pre
 ### Prerequisites
 
 - Node.js 18+
+- Python 3.11+ (for backend)
 - Google Gemini API key
 
 ### Installation
@@ -54,13 +55,14 @@ An AI-powered tool that transforms academic research papers into interactive pre
 git clone <repository-url>
 cd paper-flow
 ```
+### Frontend Setup
 
-2. Install dependencies:
+1. Install dependencies:
 ```bash
 npm install
 ```
 
-3. Create a `.env.local` file with your API keys:
+2. Create a `.env.local` file with your API keys:
 ```env
 GOOGLE_GEMINI_API_KEY=your_gemini_api_key
 NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
@@ -71,12 +73,56 @@ NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 ```
 
-4. Run the development server:
+3. Run the development server:
 ```bash
 npm run dev
 ```
 
 5. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+### Backend Setup
+
+Open a new terminal
+
+1. Navigate to backend
+```bash
+cd backend
+```
+
+2. Make setup script executable (Mac/Linux only)
+```bash
+chmod +x setup.sh
+```
+Windows users can skip this step
+
+3. Run the setup script
+
+Mac/Linux:
+
+```bash
+./setup.sh
+```
+
+If the virtual environment is not automatically activated:
+
+```bash
+source venv/bin/activate
+```
+
+Windows:
+
+```bash
+.\setup.ps1
+.\venv\Scripts\Activate.ps1
+```
+
+4. Run the backend server
+
+```bash
+uvicorn main:app --reload
+```
+
+The backend will run at http://localhost:8000
 
 ## Project Structure
 
@@ -108,6 +154,13 @@ paper-flow/
 │   ├── SlidesFlow.tsx              # React Flow canvas
 │   ├── SlideNode.tsx               # Custom slide node component
 │   └── SlideNodeEditor.tsx         # MDXEditor wrapper for slide content
+├── backend/
+│   ├── main.py
+│   ├── services/
+│   │   ├── pdf_service.py
+│   ├── requirements.txt
+│   ├── setup.sh
+│   ├── setup.ps1
 └── public/
     └── lineart_boat.png            # App logo
 ```
