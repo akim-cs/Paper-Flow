@@ -78,36 +78,85 @@ ${sections}
 // ============================
 // 3) SLIDE NODE GENERATION PROMPT
 // ============================
-export const SLIDES_PROMPT = (outline: string, sections: string, timeLimit?: number) => {
+// export const SLIDES_PROMPT = (outline: string, sections: string, timeLimit?: number) => {
+//   const maxSlides = timeLimit ? Math.max(3, Math.floor(timeLimit / 2.5)) : 8;
+//   const totalTime = timeLimit || 15;
+
+//   return `
+// You are generating structured presentation slide nodes.
+
+// Use the outline and research paper sections to produce slide nodes in this JSON format:
+
+// [
+//   {
+//     "title": string,
+//     "speaker_notes": string[],
+//     "est_time": number
+//   }
+// ]
+
+// Rules:
+// - CRITICAL: Generate EXACTLY the number of slides in the outline (at most ${maxSlides} slides). Do NOT add extra slides.
+// - Total presentation time is ${totalTime} minutes. Distribute est_time so slides sum to approximately ${totalTime} minutes.
+// - Speaker notes must be short bullet points (3-5 bullets per slide), not paragraphs.
+// - Consolidate information - each slide should cover a major theme, not granular details.
+// - Include only content present in the paper.
+// - est_time is the estimated speaking time in minutes.
+// - Convert equations: inline $...$, display $$...$$. Skip derivations not referenced in the narrative.
+// - Convert tables to Markdown, keeping alignment and captions. Include only tables referenced in the narrative.
+// - Replace figures with: ![Figure X: caption].
+// - Keep in-text citations exactly as written (e.g., [12], (Smith et al., 2023)).
+// - Exclude references, appendix, acknowledgements, funding, ethics statements, extended derivations.
+// - Output ONLY valid JSON. Do not include commentary or markdown outside JSON.
+
+// OUTLINE:
+// ${outline}
+
+// SECTIONS:
+// ${sections}
+// `;
+// };
+
+export const SLIDES_PROMPT = (
+  outline: string,
+  sections: string,
+  timeLimit?: number
+) => {
   const maxSlides = timeLimit ? Math.max(3, Math.floor(timeLimit / 2.5)) : 8;
   const totalTime = timeLimit || 15;
 
   return `
-You are generating structured presentation slide nodes.
+You are generating structured presentation slides in Markdown format.
 
-Use the outline and research paper sections to produce slide nodes in this JSON format:
-
-[
-  {
-    "title": string,
-    "speaker_notes": string[],
-    "est_time": number
-  }
-]
-
-Rules:
-- CRITICAL: Generate EXACTLY the number of slides in the outline (at most ${maxSlides} slides). Do NOT add extra slides.
-- Total presentation time is ${totalTime} minutes. Distribute est_time so slides sum to approximately ${totalTime} minutes.
-- Speaker notes must be short bullet points (3-5 bullets per slide), not paragraphs.
-- Consolidate information - each slide should cover a major theme, not granular details.
-- Include only content present in the paper.
-- est_time is the estimated speaking time in minutes.
-- Convert equations: inline $...$, display $$...$$. Skip derivations not referenced in the narrative.
-- Convert tables to Markdown, keeping alignment and captions. Include only tables referenced in the narrative.
-- Replace figures with: ![Figure X: caption].
+CRITICAL RULES:
+- Generate EXACTLY the number of slides defined in the outline (maximum ${maxSlides} slides).
+- Total presentation time is ${totalTime} minutes.
+- Distribute estimated time so slides sum to approximately ${totalTime} minutes.
+- Each slide must cover one major theme (do NOT create granular sub-slides).
+- Include ONLY information explicitly present in the provided paper sections.
 - Keep in-text citations exactly as written (e.g., [12], (Smith et al., 2023)).
 - Exclude references, appendix, acknowledgements, funding, ethics statements, extended derivations.
-- Output ONLY valid JSON. Do not include commentary or markdown outside JSON.
+- Speaker notes must be concise bullet points (3–5 per slide).
+- Do NOT include commentary outside slide content.
+- Output ONLY Markdown.
+
+FORMAT EACH SLIDE EXACTLY LIKE THIS:
+
+## Slide Title
+Estimated Time: X minutes
+
+- Bullet point 1
+- Bullet point 2
+- Bullet point 3
+- Bullet point 4
+
+---
+
+IMPORTANT:
+- Separate slides using a single horizontal rule: ---
+- Do NOT number the slides.
+- Do NOT wrap output in code blocks.
+- Do NOT output JSON.
 
 OUTLINE:
 ${outline}
