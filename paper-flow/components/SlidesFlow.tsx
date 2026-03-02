@@ -16,7 +16,7 @@ import {
 } from '@xyflow/react';
 
 import '@xyflow/react/dist/style.css';
-import type { Slide } from '../app/types/slides';
+import type { Slide, PresentationConfig } from '../app/types/slides';
 import {
   slidesToFlowNodes,
   NODE_WIDTH,
@@ -25,6 +25,7 @@ import {
 } from '../app/lib/slidesToFlowNodes';
 import { downloadSlidesAsPptx } from '../app/lib/export/slidesToPptx';
 import SlideNode from './SlideNode';
+import TranscriptPanel from './TranscriptPanel';
 
 const nodeTypes: Record<string, ComponentType<any>> = {
   slideNode: SlideNode,
@@ -33,16 +34,26 @@ const nodeTypes: Record<string, ComponentType<any>> = {
 type Props = {
   slides: Slide[];
   onSlidesChange?: (slides: Slide[]) => void;
+  config?: PresentationConfig;
 };
 
 function nodesToOrderedSlides(nodes: Node[]): Slide[] {
   const sorted = [...nodes].sort((a, b) => a.position.x - b.position.x);
-  return sorted.map((node, index) => ({
-    id: (node.id as string) ?? `slide-${index}`,
-    title: (node.data.title as string) ?? (node.data.label as string) ?? '',
-    est_time: (node.data.est_time as number) ?? 2,
-    contentMarkdown: (node.data.contentMarkdown as string) ?? '',
-  }));
+  return sorted.map((node, index) => {
+    const slide: Slide = {
+      id: (node.id as string) ?? `slide-${index}`,
+      title: (node.data.title as string) ?? (node.data.label as string) ?? '',
+      est_time: (node.data.est_time as number) ?? 2,
+      contentMarkdown: (node.data.contentMarkdown as string) ?? '',
+    };
+
+    // Only include transcript if it exists (Firebase doesn't allow undefined)
+    if (node.data.transcript) {
+      slide.transcript = node.data.transcript as string;
+    }
+
+    return slide;
+  });
 }
 
 function xAfter(node: Node): number {
@@ -65,7 +76,7 @@ function applyExpandLayout(nodes: Node[], expandedNodeIds: Set<string>): Node[] 
   });
 }
 
-export default function SlidesFlow({ slides, onSlidesChange }: Props) {
+export default function SlidesFlow({ slides, onSlidesChange, config }: Props) {
   const { nodes: initialNodes, edges: initialEdges } = useMemo(
     () => slidesToFlowNodes(slides),
     [slides]
@@ -76,6 +87,17 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
   const nodesRef = useRef(nodes);
   const insertIdRef = useRef(0);
   const [expandedNodeIds, setExpandedNodeIds] = useState<Set<string>>(() => new Set());
+
+  // Transcript panel state
+  const [transcriptPanelState, setTranscriptPanelState] = useState<{
+    isOpen: boolean;
+    activeSlideId: string | null;
+    generatingSlideId: string | null;
+  }>({
+    isOpen: false,
+    activeSlideId: null,
+    generatingSlideId: null,
+  });
 
   useEffect(() => {
     nodesRef.current = nodes;
@@ -267,6 +289,88 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
     downloadSlidesAsPptx(orderedSlides, 'PaperFlow.pptx');
   }, [nodes]);
 
+  const handleGenerateTranscript = useCallback(
+    async (slideId: string) => {
+      if (!config) return;
+
+      // Get all current slides (with their existing transcripts if any)
+      const allSlides = nodesToOrderedSlides(nodesRef.current);
+
+      // Find the index of the slide we're generating for
+      const slideIndex = allSlides.findIndex((s) => s.id === slideId);
+      if (slideIndex === -1) return;
+
+      setTranscriptPanelState((prev) => ({
+        ...prev,
+        generatingSlideId: slideId,
+      }));
+
+      try {
+        const response = await fetch('/api/generate-transcript', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            slides: allSlides,
+            slideIndex: slideIndex,
+            audienceLevel: config.audienceLevel,
+            timeLimit: config.timeLimit,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to generate transcript');
+        }
+
+        const { transcript } = await response.json();
+
+        // Update the node with the transcript
+        setNodes((prev) => {
+          const updated = prev.map((n) =>
+            n.id === slideId ? { ...n, data: { ...n.data, transcript } } : n
+          );
+          if (onSlidesChange) {
+            setTimeout(() => onSlidesChange(nodesToOrderedSlides(updated)), 0);
+          }
+          return updated;
+        });
+
+        setTranscriptPanelState((prev) => ({
+          ...prev,
+          generatingSlideId: null,
+        }));
+      } catch (error) {
+        console.error('Error generating transcript:', error);
+        setTranscriptPanelState((prev) => ({
+          ...prev,
+          generatingSlideId: null,
+        }));
+      }
+    },
+    [config, setNodes, onSlidesChange]
+  );
+
+  const handleOpenTranscriptPanel = useCallback((slideId: string) => {
+    setTranscriptPanelState({
+      isOpen: true,
+      activeSlideId: slideId,
+      generatingSlideId: null,
+    });
+  }, []);
+
+  const handleSelectSlide = useCallback((slideId: string) => {
+    setTranscriptPanelState((prev) => ({
+      ...prev,
+      activeSlideId: slideId,
+    }));
+  }, []);
+
+  const handleCloseTranscript = useCallback(() => {
+    setTranscriptPanelState((prev) => ({
+      ...prev,
+      isOpen: false,
+    }));
+  }, []);
+
   const displayNodes = useMemo(
     () =>
       nodes.map((n) => ({
@@ -279,42 +383,61 @@ export default function SlidesFlow({ slides, onSlidesChange }: Props) {
           onContentChange: (contentMarkdown: string) => handleContentChange(n.id, contentMarkdown),
           onInsertAfter: (nodeId: string) => handleInsertAfter(nodeId),
           onDelete: (nodeId: string) => handleDelete(nodeId),
+          onOpenTranscript: config ? (nodeId: string) => handleOpenTranscriptPanel(nodeId) : undefined,
         },
       })),
-    [nodes, expandedNodeIds, handleExpandChange, handleTitleChange, handleContentChange, handleInsertAfter, handleDelete]
+    [nodes, expandedNodeIds, handleExpandChange, handleTitleChange, handleContentChange, handleInsertAfter, handleDelete, handleOpenTranscriptPanel, config]
   );
 
+  // Get current slides with transcript data for the panel
+  const currentSlides = useMemo(() => nodesToOrderedSlides(nodes), [nodes]);
+
   return (
-    <div className="h-[80vh] w-full flex flex-col rounded-xl border border-paper-flow-border bg-white dark:bg-zinc-950">
-      <div className="flex-shrink-0 flex items-center justify-end gap-2 px-3 py-2 border-b border-paper-flow-border bg-paper-flow-canvas-solid/50 rounded-t-xl">
-        <button
-          type="button"
-          onClick={handleDownloadPptx}
-          disabled={nodes.length === 0}
-          className="px-3 py-1.5 text-sm font-medium rounded-lg border border-paper-flow-border bg-white dark:bg-zinc-900 text-paper-flow-text hover:bg-paper-flow-border/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          title={nodes.length === 0 ? 'No slides to export' : 'Download as PowerPoint (.pptx)'}
-        >
-          Download as PPTX
-        </button>
+    <>
+      <div className="h-[80vh] w-full flex flex-col rounded-xl border border-paper-flow-border bg-white dark:bg-zinc-950">
+        <div className="flex-shrink-0 flex items-center justify-end gap-2 px-3 py-2 border-b border-paper-flow-border bg-paper-flow-canvas-solid/50 rounded-t-xl">
+          <button
+            type="button"
+            onClick={handleDownloadPptx}
+            disabled={nodes.length === 0}
+            className="px-3 py-1.5 text-sm font-medium rounded-lg border border-paper-flow-border bg-white dark:bg-zinc-900 text-paper-flow-text hover:bg-paper-flow-border/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            title={nodes.length === 0 ? 'No slides to export' : 'Download as PowerPoint (.pptx)'}
+          >
+            Download as PPTX
+          </button>
+        </div>
+        <div className="flex-1 min-h-0 h-full rounded-b-xl overflow-hidden">
+          <ReactFlow
+            nodes={displayNodes}
+            edges={edges}
+            nodeTypes={nodeTypes}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            onNodeDragStop={onNodeDragStop}
+            deleteKeyCode={['Backspace', 'Delete']}
+            fitView
+            className="rounded-xl"
+          >
+            <Background gap={16} bgColor="#f3d8d240" size={1} />
+            <Controls />
+            <MiniMap />
+          </ReactFlow>
+        </div>
       </div>
-      <div className="flex-1 min-h-0 h-full rounded-b-xl overflow-hidden">
-      <ReactFlow
-        nodes={displayNodes}
-        edges={edges}
-        nodeTypes={nodeTypes}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onNodeDragStop={onNodeDragStop}
-        deleteKeyCode={['Backspace', 'Delete']}
-        fitView
-        className="rounded-xl"
-      >
-        <Background gap={16} bgColor="#f3d8d240" size={1} />
-        <Controls />
-        <MiniMap />
-      </ReactFlow>
-      </div>
-    </div>
+
+      {config && (
+        <TranscriptPanel
+          isOpen={transcriptPanelState.isOpen}
+          slides={currentSlides}
+          activeSlideId={transcriptPanelState.activeSlideId}
+          generatingSlideId={transcriptPanelState.generatingSlideId}
+          onSelectSlide={handleSelectSlide}
+          onGenerateTranscript={handleGenerateTranscript}
+          onClose={handleCloseTranscript}
+          config={config}
+        />
+      )}
+    </>
   );
 }

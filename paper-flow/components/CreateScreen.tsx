@@ -54,6 +54,7 @@ export default function CreateScreen() {
     <SlidesFlow
       slides={slides || []}
       onSlidesChange={(newSlides) => setSlides(newSlides)}
+      config={config}
     />
   );
 }

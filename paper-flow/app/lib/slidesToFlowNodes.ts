@@ -20,6 +20,7 @@ export function slidesToFlowNodes(slides: Slide[]): { nodes: Node[]; edges: Edge
       title: slide.title,              // IMPORTANT: SlideNode reads data.title
       est_time: slide.est_time,
       contentMarkdown: slide.contentMarkdown ?? '',
+      transcript: slide.transcript,    // Include existing transcript if present
     },
   }));
 

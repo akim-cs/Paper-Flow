@@ -241,7 +241,7 @@ function ProjectEditorContent() {
       </header>
 
       <main className="flex-1 p-6">
-        <SlidesFlow slides={slides} onSlidesChange={handleSlidesChange} />
+        <SlidesFlow slides={slides} onSlidesChange={handleSlidesChange} config={project.config} />
       </main>
     </div>
   );

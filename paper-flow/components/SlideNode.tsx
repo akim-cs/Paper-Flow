@@ -15,6 +15,7 @@ type SlideNodeData = Slide & {
   onContentChange?: (contentMarkdown: string) => void;
   onInsertAfter?: (nodeId: string) => void;
   onDelete?: (nodeId: string) => void;
+  onOpenTranscript?: (nodeId: string) => void;
 };
 
 function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
@@ -22,12 +23,14 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
     title,
     est_time,
     contentMarkdown = '',
+    transcript,
     isExpanded = false,
     onExpandChange,
     onTitleChange,
     onContentChange,
     onInsertAfter,
     onDelete,
+    onOpenTranscript,
   } = data as SlideNodeData;
 
   const titleRef = useRef<HTMLTextAreaElement | null>(null);
@@ -135,7 +138,22 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
       {/* Expanded content - Markdown editor */}
       {isExpanded && (
         <div className={`${theme.expandedBorder} ${theme.expandedBg} p-3 pt-2 break-words overflow-visible rounded-b-xl`}>
-          <p className={`text-xs font-medium ${theme.expandedLabel} mb-1.5`}>Notes</p>
+          <div className="flex items-center justify-between mb-1.5">
+            <p className={`text-xs font-medium ${theme.expandedLabel}`}>Notes</p>
+            {onOpenTranscript && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenTranscript(id);
+                }}
+                className={`text-xs px-2 py-1 rounded ${theme.secondaryText} hover:bg-paper-flow-border/20 border border-paper-flow-border transition-colors`}
+                title="View transcript for this slide"
+              >
+                View Transcript
+              </button>
+            )}
+          </div>
           <div className="min-w-0 w-full">
             <SlideNodeEditor
               markdown={contentMarkdown}

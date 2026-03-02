@@ -1,7 +1,7 @@
 // TODO: delete geminiVision
 import { geminiText, /*geminiVision*/ } from "./client";
 // TODO: delete pdf prompt
-import { /*PDF_EXTRACT_PROMPT,*/ SECTION_PROMPT, OUTLINE_PROMPT, SLIDES_PROMPT} from "./prompts";
+import { /*PDF_EXTRACT_PROMPT,*/ SECTION_PROMPT, OUTLINE_PROMPT, SLIDES_PROMPT, TRANSCRIPT_PROMPT} from "./prompts";
 import { Sections, OutlineItem, Slide, PresentationConfig } from "@/app/types/slides"
 
 export function cleanJsonString(raw: string): string {
@@ -156,4 +156,20 @@ function parseMarkdownSlides(markdown: string): Slide[] {
       contentMarkdown,
     };
   });
+}
+
+// --- Generate Transcript ---
+export async function generateTranscript(
+  slides: Slide[],
+  slideIndex: number,
+  config: PresentationConfig
+): Promise<string> {
+  const prompt = TRANSCRIPT_PROMPT(slides, slideIndex, config.audienceLevel, config.timeLimit);
+  const transcript = await geminiText(prompt);
+
+  if (!transcript) {
+    throw new Error("Gemini returned undefined for transcript");
+  }
+
+  return transcript;
 }

@@ -6,6 +6,7 @@ export type Slide = {
   title: string
   est_time: number
   contentMarkdown: string
+  transcript?: string  // Generated spoken transcript
 }
 
 /**
