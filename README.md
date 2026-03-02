@@ -2,14 +2,25 @@
 
 An AI-powered tool that transforms academic research papers into interactive presentation slide timelines. Upload a PDF, configure your presentation parameters, and receive automatically-generated slides with speaker notes—all visualized in a draggable, rearrangeable flow diagram.
 
+## Recent Updates (March 2026)
+
+- **PowerPoint Export** - Export your generated slides to `.pptx` format with full markdown rendering and formatting preservation
+- **AI-Generated Transcripts** - Generate presentation scripts for each slide, tailored to your configured audience level
+- **Resizable Transcript Panel** - Interactive side panel with drag-to-resize functionality for viewing slide transcripts
+- **Enhanced Talking Points** - Added section headers to talking points for better organization and readability
+- **UI Polish** - Improved color scheme consistency and overall visual refinement
+
 ## Features
 
 - **PDF Upload & Processing** - Upload research papers as PDF files for automatic text extraction
 - **AI-Powered Slide Generation** - Converts paper content into structured presentation slides using Google Gemini AI
 - **Presentation Configuration** - Customize for your audience level (beginner, intermediate, expert) and time limit (5-120 minutes)
 - **Interactive Timeline** - Slides displayed as draggable, connectable nodes in a visual flow diagram
-- **Expandable Slide Nodes** - View slide titles, time estimates, and expandable talking points
+- **Expandable Slide Nodes** - View slide titles, time estimates, and expandable talking points with section headers
 - **Rich Text Editing** - Edit slide content with MDXEditor (markdown support, formatting toolbar)
+- **AI-Generated Transcripts** - Generate presentation scripts for individual slides tailored to your audience level
+- **Resizable Transcript Panel** - Drag-to-resize side panel for viewing and managing slide-by-slide transcripts
+- **PowerPoint Export** - Download complete presentations as `.pptx` files with full formatting and markdown support
 - **Smart Time Distribution** - Automatically allocates speaking time across slides based on your time constraints
 - **Google Authentication** - Sign in with Google account
 - **Project Persistence** - Save and load projects from Firebase Firestore
@@ -29,16 +40,20 @@ An AI-powered tool that transforms academic research papers into interactive pre
    - Click nodes to expand/collapse speaker notes
    - Delete edges with Delete/Backspace keys
    - Use mini-map and navigation controls
+5. **Generate Transcripts** - Create detailed presentation scripts for individual slides
+6. **Export** - Download your complete presentation as a PowerPoint file
 
 ## Tech Stack
 
-- **Framework**: Next.js 15 with React 19
+- **Framework**: Next.js 16 with React 19
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS 4
 - **Flow Diagrams**: @xyflow/react
 - **Rich Text**: MDXEditor
 - **AI**: Google Gemini API (gemini-2.0-flash, gemini-2.5-flash-preview)
 - **Auth & Database**: Firebase (Authentication, Firestore)
+- **Export**: PptxGenJS (PowerPoint generation)
+- **Markdown**: marked (markdown parsing and rendering)
 
 ## Getting Started
 
@@ -137,10 +152,13 @@ paper-flow/
 │   │   └── [id]/page.tsx           # Edit existing project
 │   ├── api/
 │   │   ├── upload-paper/           # PDF upload endpoint
-│   │   └── generate-nodes/         # Slide generation endpoint
+│   │   ├── generate-nodes/         # Slide generation endpoint
+│   │   └── generate-transcript/    # Transcript generation endpoint
 │   ├── lib/
 │   │   ├── firebase/               # Firebase config, auth, firestore
 │   │   ├── gemini/                 # Gemini AI client, helpers, prompts
+│   │   ├── export/                 # PowerPoint export logic
+│   │   │   └── slidesToPptx.ts     # PPTX generation with markdown support
 │   │   └── slidesToFlowNodes.ts    # Converts slides to React Flow nodes
 │   └── types/
 │       ├── slides.ts               # Slide type definitions
@@ -151,9 +169,10 @@ paper-flow/
 │   ├── CreateScreen.tsx            # Main orchestrator (3-step flow)
 │   ├── UploadScreen.tsx            # PDF upload UI
 │   ├── ConfigScreen.tsx            # Presentation settings form
-│   ├── SlidesFlow.tsx              # React Flow canvas
+│   ├── SlidesFlow.tsx              # React Flow canvas with export functionality
 │   ├── SlideNode.tsx               # Custom slide node component
-│   └── SlideNodeEditor.tsx         # MDXEditor wrapper for slide content
+│   ├── SlideNodeEditor.tsx         # MDXEditor wrapper for slide content
+│   └── TranscriptPanel.tsx         # Resizable transcript viewer with drag handle
 ├── backend/
 │   ├── main.py
 │   ├── services/
