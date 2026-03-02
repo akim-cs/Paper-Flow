@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { paperFlowTheme as theme } from '../app/lib/theme';
 import type { Slide, PresentationConfig } from '../app/types/slides';
 
@@ -24,6 +25,39 @@ export default function TranscriptPanel({
   onClose,
   config,
 }: TranscriptPanelProps) {
+  const [width, setWidth] = useState(500);
+  const [isResizing, setIsResizing] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isResizing) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const newWidth = window.innerWidth - e.clientX;
+      // Constrain width between 400px and 80% of viewport
+      const minWidth = 400;
+      const maxWidth = window.innerWidth * 0.8;
+      setWidth(Math.max(minWidth, Math.min(newWidth, maxWidth)));
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing]);
+
   if (!isOpen) return null;
 
   const activeSlide = slides.find((s) => s.id === activeSlideId);
@@ -31,7 +65,19 @@ export default function TranscriptPanel({
   const isGenerating = generatingSlideId === activeSlideId;
 
   return (
-    <div className="fixed top-0 right-0 h-full w-[500px] bg-white dark:bg-zinc-900 border-l border-paper-flow-border shadow-2xl z-50 overflow-hidden flex animate-slide-in">
+    <div
+      ref={panelRef}
+      className="fixed top-0 right-0 h-full bg-white dark:bg-zinc-900 border-l border-paper-flow-border shadow-2xl z-50 overflow-hidden flex animate-slide-in"
+      style={{ width: `${width}px` }}
+    >
+      {/* Resize Handle */}
+      <div
+        onMouseDown={handleMouseDown}
+        className={`absolute left-0 top-0 bottom-0 w-1 cursor-ew-resize hover:bg-paper-flow-border transition-colors ${
+          isResizing ? 'bg-paper-flow-border' : 'bg-transparent'
+        }`}
+        title="Drag to resize"
+      />
       {/* Slide List Sidebar */}
       <div className="w-[180px] border-r border-paper-flow-border flex flex-col flex-shrink-0">
         {/* Sidebar Header */}
@@ -155,7 +201,7 @@ export default function TranscriptPanel({
               <div className="mt-6 pt-4 border-t border-paper-flow-border">
                 <button
                   onClick={() => onGenerateTranscript(activeSlide.id)}
-                  className={`w-full px-4 py-2 rounded ${theme.secondaryText} hover:bg-paper-flow-border/20 border border-paper-flow-border transition-colors text-sm font-medium`}
+                  className="w-full px-4 py-2.5 rounded-lg bg-paper-flow-border text-white hover:bg-paper-flow-text transition-all text-sm font-medium shadow-sm hover:shadow-md"
                 >
                   Regenerate Transcript
                 </button>
@@ -168,7 +214,7 @@ export default function TranscriptPanel({
               </p>
               <button
                 onClick={() => onGenerateTranscript(activeSlide.id)}
-                className={`px-4 py-2 rounded ${theme.secondaryText} hover:bg-paper-flow-border/20 border border-paper-flow-border transition-colors text-sm font-medium`}
+                className="px-6 py-3 rounded-lg bg-paper-flow-border text-white hover:bg-paper-flow-text transition-all text-sm font-medium shadow-md hover:shadow-lg"
               >
                 Generate Transcript
               </button>
