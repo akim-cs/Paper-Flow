@@ -35,6 +35,8 @@ function NewProjectContent() {
   const [audienceLevel, setAudienceLevel] =
     useState<PresentationConfig['audienceLevel']>('intermediate');
   const [timeLimit, setTimeLimit] = useState<number>(15);
+  const [researcherType, setResearcherType] =
+    useState<PresentationConfig['researcherType'] | null>(null);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -91,7 +93,7 @@ function NewProjectContent() {
       const res = await fetch('/api/generate-nodes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ extractedText, audienceLevel, timeLimit }),
+        body: JSON.stringify({ extractedText, audienceLevel, timeLimit, researcherType }),
       });
 
       if (!res.ok) {
@@ -109,7 +111,7 @@ function NewProjectContent() {
       const projectId = await createProject(user.uid, {
         name: projectName,
         extractedText,
-        config: { audienceLevel, timeLimit },
+        config: { audienceLevel, timeLimit, researcherType: researcherType! },
         slides,
         originalFileName: originalFileName || undefined,
       });
@@ -156,29 +158,74 @@ function NewProjectContent() {
 
       <main className="mx-auto max-w-2xl px-6 py-12">
         {step === 'upload' && (
-          <div className="rounded-xl border border-paper-flow-border bg-white p-8 dark:border-zinc-800 dark:bg-zinc-950">
-            <h2 className="mb-2 text-xl font-semibold text-zinc-900 dark:text-zinc-100">
-              Upload a paper
-            </h2>
-            <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-400">
-              Select a PDF research paper to generate slides automatically.
-            </p>
-
-            <input
-              type="file"
-              accept="application/pdf"
-              onChange={handleFileUpload}
-              disabled={loading}
-              className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
-            />
-
-            {loading && (
-              <p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
-                Processing PDF...
+          <>
+            {/* Researcher Type Selector Card */}
+            <div className="mb-6 rounded-xl border border-paper-flow-border bg-white p-8 dark:border-zinc-800 dark:bg-zinc-950">
+              <h2 className="mb-2 text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+                I am a...
+              </h2>
+              <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-400">
+                Select your role to help us tailor the presentation generation.
               </p>
-            )}
-            {error && <p className="mt-4 text-sm text-red-500">{error}</p>}
-          </div>
+
+              <div className="flex overflow-hidden rounded-lg border border-zinc-300 dark:border-zinc-700">
+                {(['author', 'academic'] as const).map((type) => (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() => setResearcherType(type)}
+                    className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                      researcherType === type
+                        ? 'bg-paper-flow-border text-white'
+                        : 'bg-white text-zinc-700 hover:bg-zinc-100 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800'
+                    }`}
+                  >
+                    {type === 'author' ? 'Author Researcher' : 'Academic Researcher'}
+                  </button>
+                ))}
+              </div>
+
+              {researcherType && (
+                <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-400">
+                  {researcherType === 'author'
+                    ? '✓ You authored this paper and will present your own research.'
+                    : '✓ You are presenting someone else\'s research for academic purposes.'
+                  }
+                </p>
+              )}
+            </div>
+
+            {/* Upload Card */}
+            <div className="rounded-xl border border-paper-flow-border bg-white p-8 dark:border-zinc-800 dark:bg-zinc-950">
+              <h2 className="mb-2 text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+                Upload a paper
+              </h2>
+              <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-400">
+                Select a PDF research paper to generate slides automatically.
+              </p>
+
+              <input
+                type="file"
+                accept="application/pdf"
+                onChange={handleFileUpload}
+                disabled={loading || !researcherType}
+                className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm text-zinc-900 disabled:opacity-50 disabled:cursor-not-allowed dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
+              />
+
+              {!researcherType && (
+                <p className="mt-2 text-xs text-zinc-400 dark:text-zinc-500">
+                  Please select your role above to enable upload.
+                </p>
+              )}
+
+              {loading && (
+                <p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
+                  Processing PDF...
+                </p>
+              )}
+              {error && <p className="mt-4 text-sm text-red-500">{error}</p>}
+            </div>
+          </>
         )}
 
         {step === 'config' && (

@@ -48,7 +48,10 @@ export async function getProject(projectId: string): Promise<Project | null> {
     userId: data.userId,
     name: data.name,
     extractedText: data.extractedText,
-    config: data.config,
+    config: {
+      ...data.config,
+      researcherType: data.config.researcherType || 'author'
+    },
     slides: data.slides,
     originalFileName: data.originalFileName,
     createdAt: data.createdAt as Timestamp,
@@ -71,7 +74,10 @@ export async function getUserProjects(userId: string): Promise<Project[]> {
       userId: data.userId,
       name: data.name,
       extractedText: data.extractedText,
-      config: data.config,
+      config: {
+        ...data.config,
+        researcherType: data.config.researcherType || 'author'
+      },
       slides: data.slides,
       originalFileName: data.originalFileName,
       createdAt: data.createdAt as Timestamp,

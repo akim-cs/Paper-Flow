@@ -27,11 +27,19 @@ ${text}
 // ============================
 // 2) PRESENTATION OUTLINE PROMPT
 // ============================
-export const OUTLINE_PROMPT = (sections: string, timeLimit?: number) => {
+export const OUTLINE_PROMPT = (sections: string, timeLimit?: number, researcherType?: 'author' | 'academic') => {
   const maxSlides = timeLimit ? Math.max(3, Math.floor(timeLimit / 2.5)) : 8;
+
+  const perspectiveNote = researcherType === 'author'
+    ? `NOTE: The presenter is the AUTHOR of this research. Frame slides around first-person narrative.`
+    : researcherType === 'academic'
+    ? `NOTE: The presenter is an ACADEMIC presenting others' research. Frame slides for third-person analysis.`
+    : '';
 
   return `
 You are an expert scientific presenter.
+
+${perspectiveNote}
 
 Transform the research paper sections into a logical presentation outline suitable for a talk.
 
@@ -65,13 +73,28 @@ ${sections}
 export const SLIDES_PROMPT = (
   outline: string,
   sections: string,
-  timeLimit?: number
+  timeLimit?: number,
+  researcherType?: 'author' | 'academic'
 ) => {
   const maxSlides = timeLimit ? Math.max(3, Math.floor(timeLimit / 2.5)) : 8;
   const totalTime = timeLimit || 15;
 
+  const perspectiveGuidance = researcherType === 'author'
+    ? `PRESENTER PERSPECTIVE: You are the AUTHOR presenting your own work.
+       - Frame content as YOUR research and YOUR findings
+       - Focus on rationale behind methodological choices
+       - Structure should support first-person delivery ("we found", "our approach")`
+    : researcherType === 'academic'
+    ? `PRESENTER PERSPECTIVE: You are an ACADEMIC presenting someone else's research.
+       - Frame content for third-person delivery ("the authors found", "this study")
+       - Focus on critical analysis and interpretation
+       - Include contextual framing within the broader field`
+    : '';
+
   return `
 You are generating structured presentation slides in Markdown.
+
+${perspectiveGuidance}
 
 CRITICAL RULES:
 - Generate EXACTLY the number of slides in the outline (maximum ${maxSlides}).
@@ -111,14 +134,31 @@ export const TRANSCRIPT_PROMPT = (
   slides: Array<{ id: string; title: string; est_time: number; contentMarkdown: string; transcript?: string }>,
   slideIndex: number,
   audienceLevel: 'beginner' | 'intermediate' | 'expert',
-  timeLimit: number
+  timeLimit: number,
+  researcherType: 'author' | 'academic'
 ) => {
   const currentSlide = slides[slideIndex];
   const isFirst = slideIndex === 0;
   const isLast = slideIndex === slides.length - 1;
 
+  const perspectiveInstructions = researcherType === 'author'
+    ? `AUTHOR PERSPECTIVE:
+       - ALWAYS use first-person pronouns: "we", "our", "I"
+       - Examples: "We hypothesized...", "Our findings show...", "I want to highlight..."
+       - Share insights: "When we designed this experiment..."
+       - Express ownership: "Our approach differs from previous work..."
+       - Include decision rationale: "We chose this method because..."`
+    : `ACADEMIC PERSPECTIVE:
+       - ALWAYS use third-person pronouns: "the authors", "the researchers", "they"
+       - Examples: "The authors hypothesized...", "This study found...", "They designed..."
+       - Critical analysis: "This work contributes by..."
+       - Comparative framing: "Unlike previous research..."
+       - Objective interpretation: "The data suggests..."`;
+
   return `# ROLE
 You are a professional speechwriter specializing in scientific communication. Your task is to transform structured slide JSON into a natural, spoken presentation transcript.
+
+${perspectiveInstructions}
 
 # DYNAMIC INPUTS
 - Audience Level: ${audienceLevel}
@@ -170,7 +210,7 @@ ${slideIndex < slides.length - 1
 2. BRIDGE SENTENCES: ${isFirst ? "This is the first slide - introduce the presentation WITHOUT referencing a previous slide." : "You MUST begin with a transition sentence connecting the previous slide's content to this new topic. Reference what was just discussed."}
 3. DATA INTEGRITY: You MUST include every specific number, percentage, and unit (e.g., 18°C, 22.7%, p < 0.05) found in the 'contentMarkdown'.
 4. VERBAL SIGNPOSTS: Use phrases like "Moving to the next slide," "As you can see in the data," and "In conclusion."
-5. VOICE: Always write in the first-person ("We found," "I observed").
+5. VOICE: ${researcherType === 'author' ? 'Always write in the first-person ("We found," "I observed").' : 'Always write in the third-person ("The authors found," "The study observed").'}
 
 # OUTPUT FORMAT
 Generate a transcript for the current slide ONLY:

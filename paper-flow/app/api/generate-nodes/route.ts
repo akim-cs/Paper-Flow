@@ -13,9 +13,10 @@ export async function POST(req: Request) {
       extractedText?: string;
       audienceLevel?: PresentationConfig["audienceLevel"];
       timeLimit?: number;
+      researcherType?: PresentationConfig["researcherType"];
     } = await req.json();
 
-    const { extractedText, audienceLevel, timeLimit } = body;
+    const { extractedText, audienceLevel, timeLimit, researcherType } = body;
 
     if (!extractedText) {
       return NextResponse.json({ error: "Missing extracted text" }, { status: 400 });
@@ -25,10 +26,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing presentation configuration" }, { status: 400 });
     }
 
+    if (!researcherType) {
+      return NextResponse.json({ error: "Missing researcher type" }, { status: 400 });
+    }
+
     const chunks = chunkText(extractedText);
     const sections = await parseSections(chunks.join("\n\n"));
-    const outline = await generateOutline(sections, { audienceLevel, timeLimit });
-    const slides: Slide[] = await generateNodes(outline, sections, { audienceLevel, timeLimit });
+    const outline = await generateOutline(sections, { audienceLevel, timeLimit, researcherType });
+    const slides: Slide[] = await generateNodes(outline, sections, { audienceLevel, timeLimit, researcherType });
 
     return NextResponse.json(slides);
   } catch (err: unknown) {

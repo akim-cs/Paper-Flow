@@ -15,6 +15,7 @@ export type Slide = {
 export type PresentationConfig = {
   audienceLevel: 'beginner' | 'intermediate' | 'expert';
   timeLimit: number; // minutes
+  researcherType: 'author' | 'academic';
 };
 
 /**
