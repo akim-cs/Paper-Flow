@@ -41,7 +41,7 @@ function HelpPopoverItem({ children }: { children: ReactNode }) {
 }
 
 const kbdClass =
-  'rounded border border-paper-flow-border bg-paper-flow-canvas-solid/50 dark:bg-zinc-700/50 px-1.5 py-0.5 font-mono text-xs';
+  'rounded border border-paper-flow-border bg-paper-flow-canvas-solid/50 px-1.5 py-0.5 font-mono text-xs';
 
 type Props = {
   slides: Slide[];
@@ -434,13 +434,13 @@ export default function SlidesFlow({ slides, onSlidesChange, config }: Props) {
 
   return (
     <>
-      <div className="h-[80vh] w-full flex flex-col rounded-xl border border-paper-flow-border bg-white dark:bg-zinc-950">
+      <div className="h-[80vh] w-full flex flex-col rounded-xl border border-paper-flow-border bg-white">
         <div className="flex-shrink-0 flex items-center justify-end gap-2 px-3 py-2 border-b border-paper-flow-border bg-paper-flow-canvas-solid/50 rounded-t-xl">
           <div className="relative flex items-center gap-2" ref={helpRef}>
             <button
               type="button"
               onClick={() => setHelpStage((s) => (s === 'closed' ? 'entering' : s === 'open' ? 'exiting' : s))}
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-paper-flow-border bg-white dark:bg-zinc-900 text-paper-flow-text hover:bg-paper-flow-border/30 transition-colors focus:outline-none focus:ring-2 focus:ring-paper-flow-border focus:ring-offset-1"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-paper-flow-border bg-white text-paper-flow-text hover:bg-paper-flow-border/30 transition-colors focus:outline-none focus:ring-2 focus:ring-paper-flow-border focus:ring-offset-1 cursor-pointer"
               aria-label="How to use the timeline"
               aria-expanded={helpOpen}
               aria-haspopup="true"
@@ -449,7 +449,7 @@ export default function SlidesFlow({ slides, onSlidesChange, config }: Props) {
             </button>
             {helpStage !== 'closed' && (
               <div
-                className={`absolute right-10 top-full z-50 -mt-1 w-80 rounded-xl border border-paper-flow-border bg-white dark:bg-zinc-900 shadow-xl shadow-black/10 dark:shadow-black/30 origin-top-right transition-all duration-200 ease-out overflow-hidden ${
+                className={`absolute right-10 top-full z-50 -mt-1 w-80 rounded-xl border border-paper-flow-border bg-white shadow-xl shadow-black/10 origin-top-right transition-all duration-200 ease-out overflow-hidden ${
                   helpStage === 'open' ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-1'
                 }`}
                 role="dialog"
@@ -476,7 +476,7 @@ export default function SlidesFlow({ slides, onSlidesChange, config }: Props) {
             type="button"
             onClick={handleDownloadPptx}
             disabled={nodes.length === 0}
-            className="px-3 py-1.5 text-sm font-medium rounded-lg border border-paper-flow-border bg-white dark:bg-zinc-900 text-paper-flow-text hover:bg-paper-flow-border/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-3 py-1.5 text-sm font-medium rounded-lg border border-paper-flow-border bg-[#D99D97] text-white hover:bg-paper-flow-border disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
             title={nodes.length === 0 ? 'No slides to export' : 'Download as PowerPoint (.pptx)'}
           >
             Download as PPTX

@@ -160,15 +160,15 @@ function NewProjectContent() {
         {step === 'upload' && (
           <>
             {/* Researcher Type Selector Card */}
-            <div className="mb-6 rounded-xl border border-paper-flow-border bg-white p-8 dark:border-zinc-800 dark:bg-zinc-950">
-              <h2 className="mb-2 text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+            <div className="mb-6 rounded-xl border border-paper-flow-border bg-white p-8">
+              <h2 className="mb-2 text-xl font-semibold text-zinc-900">
                 I am a...
               </h2>
-              <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-400">
+              <p className="mb-6 text-sm text-zinc-500">
                 Select your role to help us tailor the presentation generation.
               </p>
 
-              <div className="flex overflow-hidden rounded-lg border border-zinc-300 dark:border-zinc-700">
+              <div className="flex overflow-hidden rounded-lg border border-zinc-300">
                 {(['author', 'academic'] as const).map((type) => (
                   <button
                     key={type}
@@ -177,7 +177,7 @@ function NewProjectContent() {
                     className={`flex-1 py-2 text-sm font-medium transition-colors ${
                       researcherType === type
                         ? 'bg-paper-flow-border text-white'
-                        : 'bg-white text-zinc-700 hover:bg-zinc-100 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800'
+                        : 'bg-white text-zinc-700 hover:bg-zinc-100'
                     }`}
                   >
                     {type === 'author' ? 'Author Researcher' : 'Academic Researcher'}
@@ -186,7 +186,7 @@ function NewProjectContent() {
               </div>
 
               {researcherType && (
-                <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-400">
+                <p className="mt-3 text-xs text-zinc-500">
                   {researcherType === 'author'
                     ? '✓ You authored this paper and will present your own research.'
                     : '✓ You are presenting someone else\'s research for academic purposes.'
@@ -196,11 +196,11 @@ function NewProjectContent() {
             </div>
 
             {/* Upload Card */}
-            <div className="rounded-xl border border-paper-flow-border bg-white p-8 dark:border-zinc-800 dark:bg-zinc-950">
-              <h2 className="mb-2 text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+            <div className="rounded-xl border border-paper-flow-border bg-white p-8">
+              <h2 className="mb-2 text-xl font-semibold text-zinc-900">
                 Upload a paper
               </h2>
-              <p className="mb-6 text-sm text-zinc-500 dark:text-zinc-400">
+              <p className="mb-6 text-sm text-zinc-500">
                 Select a PDF research paper to generate slides automatically.
               </p>
 
@@ -209,17 +209,17 @@ function NewProjectContent() {
                 accept="application/pdf"
                 onChange={handleFileUpload}
                 disabled={loading || !researcherType}
-                className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm text-zinc-900 disabled:opacity-50 disabled:cursor-not-allowed dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
+                className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm text-zinc-900 disabled:opacity-50 disabled:cursor-not-allowed"
               />
 
               {!researcherType && (
-                <p className="mt-2 text-xs text-zinc-400 dark:text-zinc-500">
+                <p className="mt-2 text-xs text-zinc-400">
                   Please select your role above to enable upload.
                 </p>
               )}
 
               {loading && (
-                <p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
+                <p className="mt-4 text-sm text-zinc-500">
                   Processing PDF...
                 </p>
               )}
@@ -231,15 +231,15 @@ function NewProjectContent() {
         {step === 'config' && (
           <form
             onSubmit={handleGenerate}
-            className="rounded-xl border border-paper-flow-border bg-white p-8 dark:border-zinc-800 dark:bg-zinc-950"
+            className="rounded-xl border border-paper-flow-border bg-white p-8"
           >
-            <h2 className="mb-6 text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+            <h2 className="mb-6 text-xl font-semibold text-zinc-900">
               Presentation Settings
             </h2>
 
             <div className="mb-6">
               <label className="mb-2 block text-sm font-medium">Audience Level</label>
-              <div className="flex overflow-hidden rounded-lg border border-zinc-300 dark:border-zinc-700">
+              <div className="flex overflow-hidden rounded-lg border border-zinc-300">
                 {(['beginner', 'intermediate', 'expert'] as const).map((level) => (
                   <button
                     key={level}
@@ -248,7 +248,7 @@ function NewProjectContent() {
                     className={`flex-1 py-2 text-sm font-medium capitalize transition-colors ${
                       audienceLevel === level
                         ? 'bg-paper-flow-border text-white'
-                        : 'bg-white text-zinc-700 hover:bg-zinc-100 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800'
+                        : 'bg-white text-zinc-700 hover:bg-zinc-100'
                     }`}
                   >
                     {level}
@@ -268,7 +268,7 @@ function NewProjectContent() {
                 max={120}
                 value={timeLimit}
                 onChange={(e) => setTimeLimit(Number(e.target.value))}
-                className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2 dark:border-zinc-700 dark:bg-zinc-900"
+                className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2"
               />
             </div>
 
@@ -285,9 +285,9 @@ function NewProjectContent() {
         )}
 
         {step === 'generating' && (
-          <div className="flex flex-col items-center justify-center rounded-xl border border-paper-flow-border bg-white p-12 dark:border-zinc-800 dark:bg-zinc-950">
-            <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-zinc-300 border-t-zinc-900 dark:border-zinc-700 dark:border-t-white" />
-            <p className="text-zinc-500 dark:text-zinc-400">
+          <div className="flex flex-col items-center justify-center rounded-xl border border-paper-flow-border bg-white p-12">
+            <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-zinc-300 border-t-zinc-900" />
+            <p className="text-zinc-500">
               Generating your presentation...
             </p>
           </div>

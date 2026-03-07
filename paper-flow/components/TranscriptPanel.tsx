@@ -67,7 +67,7 @@ export default function TranscriptPanel({
   return (
     <div
       ref={panelRef}
-      className="fixed top-0 right-0 h-full bg-white dark:bg-zinc-900 border-l border-paper-flow-border shadow-2xl z-50 overflow-hidden flex animate-slide-in"
+      className="fixed top-0 right-0 h-full bg-white border-l border-paper-flow-border shadow-2xl z-50 overflow-hidden flex animate-slide-in"
       style={{ width: `${width}px` }}
     >
       {/* Resize Handle */}

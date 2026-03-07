@@ -35,12 +35,12 @@ export default function ProjectCard({ project, onDelete }: ProjectCardProps) {
   };
 
   return (
-    <div className="group relative rounded-xl border border-paper-flow-border bg-white p-5 transition-shadow hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950">
+    <div className="group relative rounded-xl border border-paper-flow-border bg-white p-5 transition-shadow hover:shadow-md">
       <Link href={`/projects/${project.id}`} className="block">
-        <h3 className="mb-2 text-lg font-semibold text-zinc-900 line-clamp-2 dark:text-zinc-100">
+        <h3 className="mb-2 text-lg font-semibold text-zinc-900 line-clamp-2">
           {project.name}
         </h3>
-        <div className="mb-3 flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
+        <div className="mb-3 flex items-center gap-2 text-sm text-zinc-500">
           <span>{project.slides.length} slides</span>
           <span>·</span>
           <span>{project.config.timeLimit} min</span>
@@ -48,11 +48,11 @@ export default function ProjectCard({ project, onDelete }: ProjectCardProps) {
           <span className="capitalize">{project.config.audienceLevel}</span>
         </div>
         {project.originalFileName && (
-          <p className="mb-3 truncate text-sm text-zinc-400 dark:text-zinc-500">
-            {project.originalFileName}
-          </p>
+        <p className="mb-3 truncate text-sm text-zinc-400">
+          {project.originalFileName}
+        </p>
         )}
-        <p className="text-xs text-zinc-400 dark:text-zinc-500">
+        <p className="text-xs text-zinc-400">
           Updated {formatDate(project.updatedAt)}
         </p>
       </Link>
@@ -62,7 +62,7 @@ export default function ProjectCard({ project, onDelete }: ProjectCardProps) {
           e.preventDefault();
           setShowConfirm(true);
         }}
-        className="absolute right-3 top-3 rounded p-1 text-zinc-400 opacity-0 transition-opacity hover:bg-zinc-100 hover:text-red-500 group-hover:opacity-100 dark:hover:bg-zinc-800"
+        className="absolute right-3 top-3 rounded p-1 text-zinc-400 opacity-0 transition-opacity hover:bg-zinc-100 hover:text-red-500 group-hover:opacity-100"
         title="Delete project"
       >
         <svg
@@ -82,16 +82,16 @@ export default function ProjectCard({ project, onDelete }: ProjectCardProps) {
       </button>
 
       {showConfirm && (
-        <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-white/95 dark:bg-zinc-950/95">
+        <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-white/95">
           <div className="text-center">
-            <p className="mb-4 text-sm text-zinc-700 dark:text-zinc-300">
+            <p className="mb-4 text-sm text-zinc-700">
               Delete this project?
             </p>
             <div className="flex gap-2">
               <button
                 onClick={() => setShowConfirm(false)}
                 disabled={deleting}
-                className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
               >
                 Cancel
               </button>

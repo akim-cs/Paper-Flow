@@ -51,7 +51,7 @@ const MyFlow = () => {
   };
 
   return (
-    <div className="h-[80vh] w-full rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+    <div className="h-[80vh] w-full rounded-xl border border-zinc-200 bg-white">
       <ReactFlow
         nodes={nodes}
         edges={edges}

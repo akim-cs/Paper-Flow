@@ -75,7 +75,7 @@ function ProjectsContent() {
 
       <main className="mx-auto max-w-6xl px-6 py-8">
         <div className="mb-8 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+          <h2 className="text-xl font-semibold text-zinc-900">
             Your Projects
           </h2>
           <Link

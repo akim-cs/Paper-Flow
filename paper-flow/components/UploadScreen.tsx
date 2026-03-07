@@ -97,11 +97,11 @@ export default function UploadScreen({ onUploadComplete, onLoadDemo }: Props) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center gap-6 rounded-xl border border-paper-flow-border bg-paper-flow-canvas- p-12 dark:border-zinc-800 dark:bg-zinc-950">
-      <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+    <div className="flex flex-col items-center justify-center gap-6 rounded-xl border border-paper-flow-border bg-white p-12">
+      <h2 className="text-xl font-semibold text-zinc-900">
         Upload a paper
       </h2>
-      <p className="max-w-md text-center text-sm text-zinc-500 dark:text-zinc-400">
+      <p className="max-w-md text-center text-sm text-zinc-500">
         Select a PDF research paper to generate slides automatically.
       </p>
 
@@ -110,17 +110,17 @@ export default function UploadScreen({ onUploadComplete, onLoadDemo }: Props) {
         accept="application/pdf"
         onChange={handleFileUpload}
         disabled={loading}
-        className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
+        className="rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm text-zinc-900"
       />
 
-      {loading && <p className="text-sm text-zinc-500 dark:text-zinc-400">Processing PDF...</p>}
+      {loading && <p className="text-sm text-zinc-500">Processing PDF...</p>}
       {error && <p className="text-sm text-red-500">{error}</p>}
 
       {onLoadDemo && (
         <button
           type="button"
           onClick={onLoadDemo}
-          className="rounded-lg border border-paper-flow-border bg-transparent px-4 py-2 text-sm font-medium text-paper-flow-text transition-colors hover:bg-paper-flow-canvas-solid/50 dark:border-zinc-600 dark:text-zinc-200 dark:hover:bg-zinc-800"
+          className="rounded-lg border border-paper-flow-border bg-transparent px-4 py-2 text-sm font-medium text-paper-flow-text transition-colors hover:bg-paper-flow-canvas-solid/50"
         >
           Load demo (Octopus slides)
         </button>
