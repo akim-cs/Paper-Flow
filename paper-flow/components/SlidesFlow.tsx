@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useEffect, useCallback, useRef, useState, type ComponentType } from 'react';
+import { useMemo, useEffect, useCallback, useRef, useState, type ComponentType, type ReactNode } from 'react';
 import {
   ReactFlow,
   Background,
@@ -30,6 +30,18 @@ import TranscriptPanel from './TranscriptPanel';
 const nodeTypes: Record<string, ComponentType<any>> = {
   slideNode: SlideNode,
 };
+
+function HelpPopoverItem({ children }: { children: ReactNode }) {
+  return (
+    <li className="flex gap-2.5 items-start">
+      <span className="text-paper-flow-border mt-0.5 shrink-0">•</span>
+      <span className="text-sm text-paper-flow-text/90">{children}</span>
+    </li>
+  );
+}
+
+const kbdClass =
+  'rounded border border-paper-flow-border bg-paper-flow-canvas-solid/50 dark:bg-zinc-700/50 px-1.5 py-0.5 font-mono text-xs';
 
 type Props = {
   slides: Slide[];
@@ -371,6 +383,34 @@ export default function SlidesFlow({ slides, onSlidesChange, config }: Props) {
     }));
   }, []);
 
+  const [helpStage, setHelpStage] = useState<'closed' | 'entering' | 'open' | 'exiting'>('closed');
+  const helpRef = useRef<HTMLDivElement>(null);
+
+  const helpOpen = helpStage !== 'closed';
+
+  useEffect(() => {
+    if (helpStage === 'entering') {
+      const id = requestAnimationFrame(() => {
+        requestAnimationFrame(() => setHelpStage('open'));
+      });
+      return () => cancelAnimationFrame(id);
+    }
+    if (helpStage === 'exiting') {
+      const t = setTimeout(() => setHelpStage('closed'), 200);
+      return () => clearTimeout(t);
+    }
+  }, [helpStage]);
+
+  useEffect(() => {
+    if (!helpOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target;
+      if (helpRef.current && target instanceof Node && !helpRef.current.contains(target) && helpStage === 'open') setHelpStage('exiting');
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [helpOpen, helpStage]);
+
   const displayNodes = useMemo(
     () =>
       nodes.map((n) => ({
@@ -396,6 +436,42 @@ export default function SlidesFlow({ slides, onSlidesChange, config }: Props) {
     <>
       <div className="h-[80vh] w-full flex flex-col rounded-xl border border-paper-flow-border bg-white dark:bg-zinc-950">
         <div className="flex-shrink-0 flex items-center justify-end gap-2 px-3 py-2 border-b border-paper-flow-border bg-paper-flow-canvas-solid/50 rounded-t-xl">
+          <div className="relative flex items-center gap-2" ref={helpRef}>
+            <button
+              type="button"
+              onClick={() => setHelpStage((s) => (s === 'closed' ? 'entering' : s === 'open' ? 'exiting' : s))}
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-paper-flow-border bg-white dark:bg-zinc-900 text-paper-flow-text hover:bg-paper-flow-border/30 transition-colors focus:outline-none focus:ring-2 focus:ring-paper-flow-border focus:ring-offset-1"
+              aria-label="How to use the timeline"
+              aria-expanded={helpOpen}
+              aria-haspopup="true"
+            >
+              <span className="text-sm font-semibold leading-none">?</span>
+            </button>
+            {helpStage !== 'closed' && (
+              <div
+                className={`absolute right-10 top-full z-50 -mt-1 w-80 rounded-xl border border-paper-flow-border bg-white dark:bg-zinc-900 shadow-xl shadow-black/10 dark:shadow-black/30 origin-top-right transition-all duration-200 ease-out overflow-hidden ${
+                  helpStage === 'open' ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-1'
+                }`}
+                role="dialog"
+                aria-label="Timeline interactions"
+              >
+                <div className="px-4 py-2.5 border-b border-paper-flow-border" style={{ backgroundColor: '#D99D97' }}>
+                  <p className="text-lg text-white font-semibold text-paper-flow-text tracking-tight">Node Interactions Guide:</p>
+                </div>
+                <ul className="px-4 py-3 space-y-2.5 list-none">
+                  <HelpPopoverItem><strong className="text-paper-flow-text font-medium">Drag</strong> a node to reorder the node sequence.</HelpPopoverItem>
+                  <HelpPopoverItem><strong className="text-paper-flow-text font-medium">Click ▼</strong> to expand and edit the title or talking points in markdown.</HelpPopoverItem>
+                  <HelpPopoverItem><strong className="text-paper-flow-text font-medium">Click ⊕</strong> to insert a new node to the left in the sequence.</HelpPopoverItem>
+                  <HelpPopoverItem><strong className="text-paper-flow-text font-medium">Click ×</strong> to delete the node.</HelpPopoverItem>
+                  <HelpPopoverItem><strong className="text-paper-flow-text font-medium">Select</strong> a node/edge and press <kbd className={kbdClass}>Delete</kbd> or <kbd className={kbdClass}>Backspace</kbd> to remove it.</HelpPopoverItem>
+                  <HelpPopoverItem><strong className="text-paper-flow-text font-medium">Click + Drag</strong> node handles to create new edges.</HelpPopoverItem>
+                  {config && (
+                    <HelpPopoverItem><strong className="text-paper-flow-text font-medium">Click</strong> <kbd className={kbdClass}>View Transcript</kbd> on an expanded node to generate or view speaker notes.</HelpPopoverItem>
+                  )}
+                </ul>
+              </div>
+            )}
+          </div>
           <button
             type="button"
             onClick={handleDownloadPptx}
