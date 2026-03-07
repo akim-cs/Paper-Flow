@@ -128,11 +128,15 @@ export default function SlidesFlow({ slides, onSlidesChange, config }: Props) {
       (a, b) => a.position.x - b.position.x || a.id.localeCompare(b.id)
     );
 
-    const merged = initialNodes.map((fromParent, i) =>
-      i < sortedCurrent.length
-        ? { ...fromParent, id: sortedCurrent[i].id }
-        : fromParent
-    );
+    // Base merge on sortedCurrent.length so we never produce duplicate ids when
+    // parent still has more slides (e.g. after insert then delete).
+    const merged = [
+      ...initialNodes.slice(0, sortedCurrent.length).map((fromParent, i) => ({
+        ...fromParent,
+        id: sortedCurrent[i].id,
+      })),
+      ...sortedCurrent.slice(initialNodes.length),
+    ];
 
     const layouted = applyExpandLayout(merged, expandedNodeIds);
 
