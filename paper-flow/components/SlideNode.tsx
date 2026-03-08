@@ -361,7 +361,11 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
             ) : (
               <SlideNodeEditor
                 markdown={contentMarkdown}
-                onChange={(markdown) => onContentChange?.(markdown)}
+                onChange={(markdown, isInit) => {
+                  // Skip MDXEditor's initialization-normalization event so it
+                  // never overwrites real slide content with an empty string.
+                  if (!isInit) onContentChange?.(markdown);
+                }}
                 contentEditableClassName="mdx-editor-content-prose min-h-[80px] text-paper-flow-text outline-none"
               />
             )}

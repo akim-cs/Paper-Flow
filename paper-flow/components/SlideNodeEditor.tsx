@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import type { MDXEditorProps } from '@mdxeditor/editor';
 import "@mdxeditor/editor/style.css";
@@ -32,6 +32,16 @@ export default function SlideNodeEditor({
   ...props
 }: SlideNodeEditorProps) {
   const displayMarkdown = TALKING_POINTS_HEADER + (markdown ?? '');
+
+  // Latch: once non-empty markdown is seen, switch to a stable 'populated' key
+  // so InitializedMDXEditor remounts exactly once (empty → populated) and never
+  // flickers again during user edits, even if the user temporarily clears content.
+  const hasSeenContentRef = useRef(!!markdown);
+  if (markdown && !hasSeenContentRef.current) {
+    hasSeenContentRef.current = true;
+  }
+  const editorKey = hasSeenContentRef.current ? 'populated' : 'empty';
+
   const handleChange = useCallback(
     (newMarkdown: string, initialMarkdownNormalize?: boolean) => {
       const toSave = newMarkdown.startsWith(TALKING_POINTS_HEADER)
@@ -43,7 +53,7 @@ export default function SlideNodeEditor({
   );
   return (
     <div className={`nodrag nopan min-h-[120px] w-full [&_.mdx-editor]:!min-h-[100px] ${className} cursor-text`}>
-      <InitializedMDXEditor {...props} markdown={displayMarkdown} onChange={handleChange} />
+      <InitializedMDXEditor key={editorKey} {...props} markdown={displayMarkdown} onChange={handleChange} />
     </div>
   );
 }
