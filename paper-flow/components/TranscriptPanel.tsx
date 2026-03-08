@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { paperFlowTheme as theme } from '../app/lib/theme';
 import type { Slide, PresentationConfig, Sections } from '../app/types/slides';
-import TranscriptEditor from './TranscriptEditor';
+import TranscriptWithTimestamps from './TranscriptWithTimestamps';
 
 const WPM: Record<PresentationConfig['audienceLevel'], number> = {
   beginner: 130,
@@ -255,11 +255,12 @@ export default function TranscriptPanel({
           ) : hasTranscript ? (
             <>
               <div className="prose prose-sm max-w-none">
-                <TranscriptEditor
+                <TranscriptWithTimestamps
                   transcript={activeSlide.transcript!}
                   onTranscriptChange={(newTranscript) => {
                     onUpdateTranscript(activeSlide.id, newTranscript);
                   }}
+                  wordsPerMinute={WPM[config.audienceLevel]}
                   className="border border-paper-flow-border rounded-lg"
                 />
               </div>
