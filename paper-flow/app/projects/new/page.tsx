@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useAuth } from '@/app/lib/firebase/AuthContext';
 import { createProject } from '@/app/lib/firebase/firestore';
 import AuthGuard from '@/components/auth/AuthGuard';
+import PaperBoatLoader from '@/components/PaperBoatLoader';
 import type { Slide, PresentationConfig, Sections, OutlineItem } from '@/app/types/slides';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -606,7 +607,7 @@ function NewProjectContent() {
       {/* ── Step 1b: Extracting (loading) ─────────────────────────────────── */}
       {step === 'extracting' && (
         <main className="flex min-h-[calc(100vh-80px)] flex-col items-center justify-center gap-8 px-6">
-          <div className="h-14 w-14 animate-spin rounded-full border-4 border-zinc-200 border-t-paper-flow-border" />
+          <PaperBoatLoader size={120} />
           <div className="text-center">
             <p className="text-lg font-semibold text-paper-flow-text">
               {extractPhase === 'text'
@@ -944,11 +945,14 @@ function NewProjectContent() {
       {/* ── Step 5: Generation Progress ───────────────────────────────────── */}
       {step === 'generating' && (
         <main className="flex min-h-[calc(100vh-80px)] flex-col items-center justify-center gap-10 px-6">
-          <div className="text-center">
-            <h2 className="text-2xl font-semibold text-paper-flow-text">
-              Building your presentation
-            </h2>
-            <p className="mt-2 text-sm text-zinc-400">This may take a minute…</p>
+          <div className="flex flex-col items-center gap-4">
+            <PaperBoatLoader size={120} />
+            <div className="text-center">
+              <h2 className="text-2xl font-semibold text-paper-flow-text">
+                Building your presentation
+              </h2>
+              <p className="mt-2 text-sm text-zinc-400">This may take a minute…</p>
+            </div>
           </div>
 
           <div className="w-full max-w-xs space-y-4">

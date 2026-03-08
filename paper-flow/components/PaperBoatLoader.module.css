@@ -1,0 +1,24 @@
+/*
+ * Boat rocking animation: gentle ±7° rotation with a subtle vertical bob
+ * on the transitions between sides, like floating on calm water.
+ *
+ * transform-origin: center bottom anchors the pivot to the hull so the
+ * top of the boat traces a natural arc rather than spinning in place.
+ *
+ * will-change: transform promotes the element to its own compositor layer,
+ * keeping the animation off the main thread and avoiding layout/paint cost.
+ */
+@keyframes boat-rock {
+  0%   { transform: rotate(-7deg) translateY(0px);   }
+  25%  { transform: rotate( 0deg) translateY(-4px);  }
+  50%  { transform: rotate( 7deg) translateY(0px);   }
+  75%  { transform: rotate( 0deg) translateY(-4px);  }
+  100% { transform: rotate(-7deg) translateY(0px);   }
+}
+
+.boat {
+  animation: boat-rock 2.4s ease-in-out infinite;
+  transform-origin: center bottom;
+  will-change: transform;
+  display: block;
+}
