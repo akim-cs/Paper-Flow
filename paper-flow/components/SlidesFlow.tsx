@@ -312,7 +312,8 @@ export default function SlidesFlow({ slides, onSlidesChange, config, sections }:
       if (!config) return;
 
       // Get all current slides (with their existing transcripts if any)
-      const allSlides = nodesToOrderedSlides(nodesRef.current);
+      // Use current nodes state instead of ref to ensure we have the latest est_time
+      const allSlides = nodesToOrderedSlides(nodes);
 
       // Find the index of the slide we're generating for
       const slideIndex = allSlides.findIndex((s) => s.id === slideId);
@@ -364,7 +365,7 @@ export default function SlidesFlow({ slides, onSlidesChange, config, sections }:
         }));
       }
     },
-    [config, setNodes, onSlidesChange]
+    [config, nodes, setNodes, onSlidesChange]
   );
 
   const handleOpenTranscriptPanel = useCallback((slideId: string) => {
