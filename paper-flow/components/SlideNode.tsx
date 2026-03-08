@@ -168,6 +168,7 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
     title,
     est_time,
     contentMarkdown = '',
+    transcript,
     source_section,
     paper_heading,
     bulletSources,
@@ -303,6 +304,24 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
               </span>
             );
           })()}
+          {/* Transcript status indicator */}
+          {transcript ? (
+            <span
+              className="inline-flex items-center gap-0.5 text-[10px] font-medium text-green-600"
+              title="Transcript ready"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-green-400 inline-block" />
+              Transcript
+            </span>
+          ) : (
+            <span
+              className="inline-flex items-center gap-0.5 text-[10px] text-zinc-300"
+              title="No transcript yet — open the transcript panel to generate one"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-zinc-200 inline-block" />
+              No transcript
+            </span>
+          )}
         </div>
         {paper_heading && (
           <p className={`text-[10px] ${theme.secondaryText} opacity-70 mt-0.5 leading-tight truncate`} title={paper_heading}>

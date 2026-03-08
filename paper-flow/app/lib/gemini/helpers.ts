@@ -251,7 +251,7 @@ const BULLET_LINE_RE = /^(\s*)([-*+])\s+(.*)/;
  * Returns true if every bullet line in the markdown ends with a [src:...] marker.
  * Used to decide whether to trigger a repair retry.
  */
-function validateBulletCitations(markdown: string): { valid: boolean; missing: number; total: number } {
+export function validateBulletCitations(markdown: string): { valid: boolean; missing: number; total: number } {
   const lines = markdown.split('\n');
   const bulletLines = lines.filter((l) => BULLET_LINE_RE.test(l));
   if (bulletLines.length === 0) return { valid: false, missing: 0, total: 0 };
@@ -300,7 +300,7 @@ function parseBulletAnnotations(
   return { cleanMarkdown, bulletSources };
 }
 
-function parseMarkdownSlides(markdown: string, headings?: Sections['headings']): Slide[] {
+export function parseMarkdownSlides(markdown: string, headings?: Sections['headings']): Slide[] {
   const blocks = markdown.split(/\n---\n/);
 
   return blocks.map((block, index) => {
@@ -325,6 +325,85 @@ function parseMarkdownSlides(markdown: string, headings?: Sections['headings']):
       contentMarkdown: cleanMarkdown,
       ...(bulletSources.length > 0 ? { bulletSources } : {}),
     };
+  });
+}
+
+// --- Stage-level exports for SSE streaming route ---
+// These expose the individual sub-steps of generateNodes so the API route can
+// emit progress events between each Gemini call rather than blocking on all three.
+
+/**
+ * Runs SLIDES_PROMPT and checks whether every bullet got an inline [src:...] marker.
+ * Returns the raw markdown and whether a repair pass is needed.
+ */
+export async function generateSlidesMarkdown(
+  outline: OutlineItem[],
+  sections: Sections,
+  config?: PresentationConfig
+): Promise<{ markdown: string; citationsValid: boolean }> {
+  const sectionsJson = JSON.stringify(sections);
+  const promptWithConfig =
+    SLIDES_PROMPT(JSON.stringify(outline), sectionsJson, config?.researcherType, config?.presentationSize) +
+    (config ? `\nAudience Level: ${config.audienceLevel}` : '');
+
+  const markdown = await geminiText(promptWithConfig);
+  if (!markdown) throw new Error('Gemini returned undefined for slides');
+
+  if (process.env.NODE_ENV === 'development') {
+    const { valid, missing, total } = validateBulletCitations(markdown);
+    console.log(`[generateSlidesMarkdown] length=${markdown.length} bullets=${total} missing=${missing} valid=${valid}`);
+  }
+
+  const { valid: citationsValid } = validateBulletCitations(markdown);
+  return { markdown, citationsValid };
+}
+
+/**
+ * Runs REPAIR_SLIDES_PROMPT to add missing [src:...] markers.
+ * Falls back to the original markdown if the repair call returns nothing.
+ */
+export async function repairSlidesMarkdown(
+  markdown: string,
+  sections: Sections
+): Promise<string> {
+  const repaired = await geminiText(REPAIR_SLIDES_PROMPT(markdown, JSON.stringify(sections)));
+  if (!repaired) {
+    console.warn('[repairSlidesMarkdown] Repair returned empty; keeping original markdown');
+    return markdown;
+  }
+  if (process.env.NODE_ENV === 'development') {
+    const after = validateBulletCitations(repaired);
+    console.log(`[repairSlidesMarkdown] After repair — bullets=${after.total} missing=${after.missing} valid=${after.valid}`);
+  }
+  return repaired;
+}
+
+/**
+ * Runs the ATTRIBUTE_SOURCES_PROMPT attribution fallback for any slides that
+ * still have no bulletSources after the inline marker pipeline.
+ */
+export async function runAttributionFallback(
+  slides: Slide[],
+  sections: Sections
+): Promise<Slide[]> {
+  const missingAttribution = slides
+    .map((s, i) => ({ s, i }))
+    .filter(({ s }) => !s.bulletSources?.length);
+
+  if (missingAttribution.length === 0) return slides;
+
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`[runAttributionFallback] Running for ${missingAttribution.length} slides without bulletSources`);
+  }
+
+  const slidesForAttribution = missingAttribution.map(({ s }) => s);
+  const attributions = await attributeBulletSources(slidesForAttribution, sections);
+
+  return slides.map((slide, globalIdx) => {
+    const localIdx = missingAttribution.findIndex(({ i }) => i === globalIdx);
+    if (localIdx === -1 || (slide.bulletSources?.length ?? 0) > 0) return slide;
+    const sources = attributions.get(localIdx);
+    return sources?.length ? { ...slide, bulletSources: sources } : slide;
   });
 }
 
