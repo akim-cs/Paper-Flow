@@ -327,12 +327,11 @@ ${slideIndex < slides.length - 1
 5. VOICE: ${researcherType === 'author' ? 'Always write in the first-person ("We found," "I observed").' : 'Always write in the third-person ("The authors found," "The study observed").'}
 
 # OUTPUT FORMAT
-Generate a transcript for the current slide ONLY:
+Generate a transcript for the current slide ONLY.
 
-## ${currentSlide.title}
-(Time: ${currentSlide.est_time} minutes | Audience: ${audienceLevel})
+IMPORTANT: Do NOT include the slide title or metadata headers in your output. The UI already displays the title, time, and audience level separately.
 
-[Natural Paragraph Transcript]
+Output ONLY the natural paragraph transcript text - no headers, no metadata, just the spoken content.
 
 # CURRENT SLIDE TO GENERATE TRANSCRIPT FOR
 
