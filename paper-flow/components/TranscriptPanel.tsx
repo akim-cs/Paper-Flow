@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { paperFlowTheme as theme } from '../app/lib/theme';
 import type { Slide, PresentationConfig, Sections } from '../app/types/slides';
+import TranscriptEditor from './TranscriptEditor';
 
 const WPM: Record<PresentationConfig['audienceLevel'], number> = {
   beginner: 130,
@@ -19,6 +20,7 @@ type TranscriptPanelProps = {
   onGenerateTranscript: (slideId: string) => void;
   onClose: () => void;
   onUpdateEstTime: (slideId: string, estTime: number) => void;
+  onUpdateTranscript: (slideId: string, transcript: string) => void;
   config: PresentationConfig;
   sections?: Sections;
 };
@@ -50,6 +52,7 @@ export default function TranscriptPanel({
   onGenerateTranscript,
   onClose,
   onUpdateEstTime,
+  onUpdateTranscript,
   config,
   sections,
 }: TranscriptPanelProps) {
@@ -178,7 +181,7 @@ export default function TranscriptPanel({
             </div>
             <button
               onClick={onClose}
-              className={`text-2xl ${theme.secondaryText} hover:opacity-80 hover:text-red-600 font-medium w-8 h-8 rounded flex items-center justify-center border border-transparent hover:border-current flex-shrink-0 ml-2`}
+              className={`text-2xl ${theme.secondaryText} hover:opacity-80 hover:text-red-600 font-medium w-8 h-8 rounded flex items-center justify-center border border-transparent hover:border-current flex-shrink-0`}
               title="Close transcript panel"
               aria-label="Close transcript panel"
             >
@@ -251,38 +254,14 @@ export default function TranscriptPanel({
             </div>
           ) : hasTranscript ? (
             <>
-              <div className={`prose prose-sm max-w-none ${theme.titleText}`}>
-                {activeSlide.transcript!.split('\n---\n').map((section, idx) => (
-                  <div key={idx} className="mb-6">
-                    {section.split('\n').map((line, lineIdx) => {
-                      // Title lines starting with ##
-                      if (line.startsWith('##')) {
-                        return (
-                          <h3 key={lineIdx} className="text-base font-semibold mb-2 mt-4">
-                            {line.replace(/^##\s*/, '')}
-                          </h3>
-                        );
-                      }
-                      // Time/audience metadata
-                      if (line.startsWith('(Time:')) {
-                        return (
-                          <p key={lineIdx} className={`text-xs ${theme.secondaryTextAlt} mb-3`}>
-                            {line}
-                          </p>
-                        );
-                      }
-                      // Regular paragraph text
-                      if (line.trim()) {
-                        return (
-                          <p key={lineIdx} className="mb-3 leading-relaxed">
-                            {line}
-                          </p>
-                        );
-                      }
-                      return null;
-                    })}
-                  </div>
-                ))}
+              <div className="prose prose-sm max-w-none">
+                <TranscriptEditor
+                  transcript={activeSlide.transcript!}
+                  onTranscriptChange={(newTranscript) => {
+                    onUpdateTranscript(activeSlide.id, newTranscript);
+                  }}
+                  className="border border-paper-flow-border rounded-lg"
+                />
               </div>
 
               {/* Regenerate Button */}

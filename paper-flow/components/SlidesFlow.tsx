@@ -404,6 +404,21 @@ export default function SlidesFlow({ slides, onSlidesChange, config, sections }:
     [setNodes, onSlidesChange]
   );
 
+  const handleUpdateTranscript = useCallback(
+    (slideId: string, transcript: string) => {
+      setNodes((prev) => {
+        const updated = prev.map((n) =>
+          n.id === slideId ? { ...n, data: { ...n.data, transcript } } : n
+        );
+        if (onSlidesChange) {
+          setTimeout(() => onSlidesChange(nodesToOrderedSlides(updated)), 0);
+        }
+        return updated;
+      });
+    },
+    [setNodes, onSlidesChange]
+  );
+
   const [helpStage, setHelpStage] = useState<'closed' | 'entering' | 'open' | 'exiting'>('closed');
   const helpRef = useRef<HTMLDivElement>(null);
 
@@ -533,6 +548,7 @@ export default function SlidesFlow({ slides, onSlidesChange, config, sections }:
           onGenerateTranscript={handleGenerateTranscript}
           onClose={handleCloseTranscript}
           onUpdateEstTime={handleUpdateEstTime}
+          onUpdateTranscript={handleUpdateTranscript}
           config={config}
           sections={sections}
         />
