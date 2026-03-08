@@ -4,7 +4,8 @@ export async function POST(req: Request) {
   try {
     const formData = await req.formData();
 
-    const response = await fetch("http://localhost:8000/extract", {
+    const PYTHON_BACKEND_URL = process.env.PYTHON_BACKEND_URL || 'http://localhost:8000';
+    const response = await fetch(`${PYTHON_BACKEND_URL}/extract`, {
       method: "POST",
       body: formData
     });
