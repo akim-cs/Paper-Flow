@@ -72,20 +72,24 @@ export default function TranscriptWithTimestamps({
   return (
     <div className={`relative ${className}`}>
       {/* Timestamp margin */}
-      <div className="absolute left-0 top-0 bottom-0 w-12 pointer-events-none z-10">
-        {timestampMarkers.map((marker, idx) => (
-          <div
-            key={idx}
-            className="absolute left-0 text-[10px] font-mono text-paper-flow-border/70 font-medium"
-            style={{
-              top: `${marker.position}%`,
-              transform: 'translateY(-50%)',
-            }}
-            title={`Estimated timestamp at ${marker.time}`}
-          >
-            {marker.time}
-          </div>
-        ))}
+      <div className="absolute left-0 top-0 bottom-0 w-14 pl-2 pointer-events-none z-10">
+        {timestampMarkers.map((marker, idx) => {
+          // Clamp position between 2% and 98% to prevent edge collision
+          const clampedPosition = Math.max(2, Math.min(98, marker.position));
+          return (
+            <div
+              key={idx}
+              className="absolute left-2 text-[10px] font-mono text-paper-flow-border/70 font-medium"
+              style={{
+                top: `${clampedPosition}%`,
+                transform: 'translateY(-50%)',
+              }}
+              title={`Estimated timestamp at ${marker.time}`}
+            >
+              {marker.time}
+            </div>
+          );
+        })}
       </div>
 
       {/* Editor with left padding for timestamp margin */}
