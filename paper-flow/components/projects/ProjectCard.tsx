@@ -43,8 +43,6 @@ export default function ProjectCard({ project, onDelete }: ProjectCardProps) {
         <div className="mb-3 flex items-center gap-2 text-sm text-zinc-500">
           <span>{project.slides.length} slides</span>
           <span>·</span>
-          <span>{project.config.timeLimit} min</span>
-          <span>·</span>
           <span className="capitalize">{project.config.audienceLevel}</span>
         </div>
         {project.originalFileName && (

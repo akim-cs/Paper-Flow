@@ -34,7 +34,6 @@ function NewProjectContent() {
   // Config state
   const [audienceLevel, setAudienceLevel] =
     useState<PresentationConfig['audienceLevel']>('intermediate');
-  const [timeLimit, setTimeLimit] = useState<number>(15);
   const [researcherType, setResearcherType] =
     useState<PresentationConfig['researcherType'] | null>(null);
 
@@ -93,7 +92,7 @@ function NewProjectContent() {
       const res = await fetch('/api/generate-nodes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ extractedText, audienceLevel, timeLimit, researcherType }),
+        body: JSON.stringify({ extractedText, audienceLevel, researcherType }),
       });
 
       if (!res.ok) {
@@ -118,7 +117,7 @@ function NewProjectContent() {
       const projectId = await createProject(user.uid, {
         name: projectName,
         extractedText,
-        config: { audienceLevel, timeLimit, researcherType: researcherType! },
+        config: { audienceLevel, researcherType: researcherType! },
         slides,
         sections,
         originalFileName: originalFileName || undefined,
@@ -263,21 +262,6 @@ function NewProjectContent() {
                   </button>
                 ))}
               </div>
-            </div>
-
-            <div className="mb-8">
-              <label htmlFor="time" className="mb-2 block text-sm font-medium">
-                Time Limit (minutes)
-              </label>
-              <input
-                id="time"
-                type="number"
-                min={5}
-                max={120}
-                value={timeLimit}
-                onChange={(e) => setTimeLimit(Number(e.target.value))}
-                className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2"
-              />
             </div>
 
             {error && <p className="mb-4 text-sm text-red-500">{error}</p>}

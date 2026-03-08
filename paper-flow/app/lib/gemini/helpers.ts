@@ -58,9 +58,9 @@ export async function generateOutline(
   sections: Sections,
   config?: PresentationConfig
 ): Promise<OutlineItem[]> {
-  const promptWithConfig = OUTLINE_PROMPT(JSON.stringify(sections), config?.timeLimit, config?.researcherType) +
+  const promptWithConfig = OUTLINE_PROMPT(JSON.stringify(sections), config?.researcherType) +
     (config
-      ? `\nAudience Level: ${config.audienceLevel}\nTime Limit: ${config.timeLimit} minutes`
+      ? `\nAudience Level: ${config.audienceLevel}`
       : "");
   const outlineJson = await geminiText(promptWithConfig);
 
@@ -159,11 +159,10 @@ export async function generateNodes(
     SLIDES_PROMPT(
       JSON.stringify(outline),
       sectionsJson,
-      config?.timeLimit,
       config?.researcherType
     ) +
     (config
-      ? `\nAudience Level: ${config.audienceLevel}\nTime Limit: ${config.timeLimit} minutes`
+      ? `\nAudience Level: ${config.audienceLevel}`
       : "");
 
   let markdown = await geminiText(promptWithConfig);
@@ -373,7 +372,7 @@ export async function generateTranscript(
   slideIndex: number,
   config: PresentationConfig
 ): Promise<string> {
-  const prompt = TRANSCRIPT_PROMPT(slides, slideIndex, config.audienceLevel, config.timeLimit, config.researcherType);
+  const prompt = TRANSCRIPT_PROMPT(slides, slideIndex, config.audienceLevel, config.researcherType);
   const transcript = await geminiText(prompt);
 
   if (!transcript) {

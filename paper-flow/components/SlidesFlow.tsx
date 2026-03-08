@@ -331,7 +331,7 @@ export default function SlidesFlow({ slides, onSlidesChange, config, sections }:
             slides: allSlides,
             slideIndex: slideIndex,
             audienceLevel: config.audienceLevel,
-            timeLimit: config.timeLimit,
+            researcherType: config.researcherType,
           }),
         });
 
@@ -388,6 +388,21 @@ export default function SlidesFlow({ slides, onSlidesChange, config, sections }:
       isOpen: false,
     }));
   }, []);
+
+  const handleUpdateEstTime = useCallback(
+    (slideId: string, estTime: number) => {
+      setNodes((prev) => {
+        const updated = prev.map((n) =>
+          n.id === slideId ? { ...n, data: { ...n.data, est_time: estTime } } : n
+        );
+        if (onSlidesChange) {
+          setTimeout(() => onSlidesChange(nodesToOrderedSlides(updated)), 0);
+        }
+        return updated;
+      });
+    },
+    [setNodes, onSlidesChange]
+  );
 
   const [helpStage, setHelpStage] = useState<'closed' | 'entering' | 'open' | 'exiting'>('closed');
   const helpRef = useRef<HTMLDivElement>(null);
@@ -517,6 +532,7 @@ export default function SlidesFlow({ slides, onSlidesChange, config, sections }:
           onSelectSlide={handleSelectSlide}
           onGenerateTranscript={handleGenerateTranscript}
           onClose={handleCloseTranscript}
+          onUpdateEstTime={handleUpdateEstTime}
           config={config}
           sections={sections}
         />

@@ -4,6 +4,12 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import { paperFlowTheme as theme } from '../app/lib/theme';
 import type { Slide, PresentationConfig, Sections } from '../app/types/slides';
 
+const WPM: Record<PresentationConfig['audienceLevel'], number> = {
+  beginner: 130,
+  intermediate: 140,
+  expert: 150,
+};
+
 type TranscriptPanelProps = {
   isOpen: boolean;
   slides: Slide[];
@@ -12,6 +18,7 @@ type TranscriptPanelProps = {
   onSelectSlide: (slideId: string) => void;
   onGenerateTranscript: (slideId: string) => void;
   onClose: () => void;
+  onUpdateEstTime: (slideId: string, estTime: number) => void;
   config: PresentationConfig;
   sections?: Sections;
 };
@@ -42,6 +49,7 @@ export default function TranscriptPanel({
   onSelectSlide,
   onGenerateTranscript,
   onClose,
+  onUpdateEstTime,
   config,
   sections,
 }: TranscriptPanelProps) {
@@ -49,6 +57,14 @@ export default function TranscriptPanel({
   const [isResizing, setIsResizing] = useState(false);
   const [sourceExpanded, setSourceExpanded] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
+
+  // Local est_time slider state — synced from the active slide
+  const activeSlideEstTime = slides.find((s) => s.id === activeSlideId)?.est_time ?? 2;
+  const [sliderEstTime, setSliderEstTime] = useState<number>(activeSlideEstTime);
+
+  useEffect(() => {
+    setSliderEstTime(activeSlideEstTime);
+  }, [activeSlideId, activeSlideEstTime]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -152,26 +168,72 @@ export default function TranscriptPanel({
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <div className={`p-4 ${theme.expandedBorder} border-b flex items-start justify-between`}>
-          <div className="flex-1 min-w-0">
-            <h2 className={`text-lg font-semibold ${theme.titleText} mb-1`}>Transcript</h2>
-            {activeSlide && (
-              <>
+        <div className={`p-4 ${theme.expandedBorder} border-b`}>
+          <div className="flex items-start justify-between mb-2">
+            <div className="flex-1 min-w-0">
+              <h2 className={`text-lg font-semibold ${theme.titleText} mb-1`}>Transcript</h2>
+              {activeSlide && (
                 <p className={`text-sm ${theme.secondaryText} truncate`}>{activeSlide.title}</p>
-                <p className={`text-xs ${theme.secondaryTextAlt} mt-1`}>
-                  Time: {activeSlide.est_time} min | Audience: {config.audienceLevel}
-                </p>
-              </>
-            )}
+              )}
+            </div>
+            <button
+              onClick={onClose}
+              className={`text-2xl ${theme.secondaryText} hover:opacity-80 hover:text-red-600 font-medium w-8 h-8 rounded flex items-center justify-center border border-transparent hover:border-current flex-shrink-0 ml-2`}
+              title="Close transcript panel"
+              aria-label="Close transcript panel"
+            >
+              ×
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className={`text-2xl ${theme.secondaryText} hover:opacity-80 hover:text-red-600 font-medium w-8 h-8 rounded flex items-center justify-center border border-transparent hover:border-current flex-shrink-0 ml-2`}
-            title="Close transcript panel"
-            aria-label="Close transcript panel"
-          >
-            ×
-          </button>
+          {activeSlide && (() => {
+            const wpm = WPM[config.audienceLevel];
+            const targetWords = Math.round(sliderEstTime * wpm);
+            const actualWords = activeSlide.transcript
+              ? activeSlide.transcript.trim().split(/\s+/).filter(Boolean).length
+              : null;
+            const actualMinutes = actualWords ? (actualWords / wpm).toFixed(1) : null;
+            const sliderChanged = sliderEstTime !== activeSlide.est_time;
+            return (
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className={`text-xs font-medium ${theme.secondaryText}`}>
+                    Target speaking time
+                  </label>
+                  <span className={`text-xs font-semibold ${theme.titleText}`}>
+                    {sliderEstTime % 1 === 0
+                      ? `${sliderEstTime} min`
+                      : `${Math.floor(sliderEstTime)} min ${Math.round((sliderEstTime % 1) * 60)} sec`}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min={0.25}
+                  max={5}
+                  step={0.25}
+                  value={sliderEstTime}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    setSliderEstTime(val);
+                    onUpdateEstTime(activeSlide.id, val);
+                  }}
+                  className="w-full accent-paper-flow-border"
+                />
+                <div className={`flex items-center justify-between mt-1 text-xs ${theme.secondaryTextAlt}`}>
+                  <span>~{targetWords} words target</span>
+                  {actualWords !== null && (
+                    <span className={sliderChanged ? 'opacity-50' : ''}>
+                      actual: {actualWords} words (~{actualMinutes} min)
+                    </span>
+                  )}
+                </div>
+                {sliderChanged && (
+                  <p className={`text-xs mt-1 ${theme.secondaryTextAlt} italic`}>
+                    Regenerate transcript to apply new timing
+                  </p>
+                )}
+              </div>
+            );
+          })()}
         </div>
 
         {/* Content */}

@@ -47,8 +47,8 @@ ${text}
 // ============================
 // 2) PRESENTATION OUTLINE PROMPT
 // ============================
-export const OUTLINE_PROMPT = (sections: string, timeLimit?: number, researcherType?: 'author' | 'academic') => {
-  const maxSlides = timeLimit ? Math.max(3, Math.floor(timeLimit / 2.5)) : 8;
+export const OUTLINE_PROMPT = (sections: string, researcherType?: 'author' | 'academic') => {
+  const maxSlides = 8;
 
   const perspectiveNote = researcherType === 'author'
     ? `NOTE: The presenter is the AUTHOR of this research. Frame slides around first-person narrative.`
@@ -94,11 +94,9 @@ ${sections}
 export const SLIDES_PROMPT = (
   outline: string,
   sections: string,
-  timeLimit?: number,
   researcherType?: 'author' | 'academic'
 ) => {
-  const maxSlides = timeLimit ? Math.max(3, Math.floor(timeLimit / 2.5)) : 8;
-  const totalTime = timeLimit || 15;
+  const maxSlides = 8;
 
   const perspectiveGuidance = researcherType === 'author'
     ? `PRESENTER PERSPECTIVE: You are the AUTHOR presenting your own work.
@@ -147,8 +145,7 @@ If a bullet lacks a [src:...] marker, your output is malformed. Every bullet. No
 
 CRITICAL RULES:
 - Generate EXACTLY the number of slides in the outline (maximum ${maxSlides}).
-- Total presentation time: ${totalTime} minutes.
-- Distribute time approximately evenly across slides.
+- Assign 1–3 minutes per slide based on content complexity (use "Estimated Time: X minutes").
 - Include ONLY content present in the provided paper sections.
 - Exclude references, appendix, acknowledgements, funding, ethics statements.
 - Output ONLY Markdown.
@@ -248,7 +245,6 @@ export const TRANSCRIPT_PROMPT = (
   slides: Array<{ id: string; title: string; est_time: number; contentMarkdown: string; transcript?: string }>,
   slideIndex: number,
   audienceLevel: 'beginner' | 'intermediate' | 'expert',
-  timeLimit: number,
   researcherType: 'author' | 'academic'
 ) => {
   const currentSlide = slides[slideIndex];
@@ -276,7 +272,6 @@ ${perspectiveInstructions}
 
 # DYNAMIC INPUTS
 - Audience Level: ${audienceLevel}
-- Total Time Limit: ${timeLimit} minutes
 
 # PRESENTATION CONTEXT
 

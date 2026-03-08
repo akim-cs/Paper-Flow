@@ -10,7 +10,6 @@ type Props = {
 
 export default function ConfigScreen({ paperId, onComplete }: Props) {
   const [audienceLevel, setAudienceLevel] = useState<PresentationConfig['audienceLevel']>('intermediate');
-  const [timeLimit, setTimeLimit] = useState<number>(15);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,7 +22,7 @@ export default function ConfigScreen({ paperId, onComplete }: Props) {
       const res = await fetch("/api/generate-nodes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paperId, audienceLevel, timeLimit })
+        body: JSON.stringify({ paperId, audienceLevel })
       });
 
       if (!res.ok) {
@@ -33,7 +32,7 @@ export default function ConfigScreen({ paperId, onComplete }: Props) {
 
       const slides: Slide[] = await res.json();
 
-      onComplete({ audienceLevel, timeLimit, researcherType: 'author' }, slides);
+      onComplete({ audienceLevel, researcherType: 'author' }, slides);
     } catch (err) {
       console.error(err);
       if (err instanceof Error) {
@@ -74,21 +73,6 @@ export default function ConfigScreen({ paperId, onComplete }: Props) {
               </button>
             ))}
           </div>
-        </div>
-
-        <div className="mb-8">
-          <label htmlFor="time" className="mb-2 block text-sm font-medium">
-            Time Limit (minutes)
-          </label>
-          <input
-            id="time"
-            type="number"
-            min={5}
-            max={120}
-            value={timeLimit}
-            onChange={(e) => setTimeLimit(Number(e.target.value))}
-            className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-2"
-          />
         </div>
 
         {loading && <p className="text-sm text-zinc-500">Generating slides...</p>}

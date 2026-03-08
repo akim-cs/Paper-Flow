@@ -208,8 +208,6 @@ function ProjectEditorContent() {
               <div className="flex items-center gap-2 text-sm text-white/70">
                 <span>{slides.length} slides</span>
                 <span>·</span>
-                <span>{project.config.timeLimit} min</span>
-                <span>·</span>
                 <span className="capitalize">{project.config.audienceLevel}</span>
               </div>
             </div>
