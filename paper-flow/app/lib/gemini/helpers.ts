@@ -1,7 +1,5 @@
-// TODO: delete geminiVision
-import { geminiText, /*geminiVision*/ } from "./client";
-// TODO: delete pdf prompt
-import { /*PDF_EXTRACT_PROMPT,*/ SECTION_PROMPT, OUTLINE_PROMPT, SLIDES_PROMPT, REPAIR_SLIDES_PROMPT, ATTRIBUTE_SOURCES_PROMPT, TRANSCRIPT_PROMPT} from "./prompts";
+import { geminiText } from "./client";
+import { SECTION_PROMPT, OUTLINE_PROMPT, SLIDES_PROMPT, REPAIR_SLIDES_PROMPT, ATTRIBUTE_SOURCES_PROMPT, TRANSCRIPT_PROMPT } from "./prompts";
 import { Sections, OutlineItem, Slide, PresentationConfig, BulletSource } from "@/app/types/slides"
 
 export function cleanJsonString(raw: string): string {
@@ -24,14 +22,6 @@ export function chunkText(text: string, maxChunkSize: number = 8000): string[] {
   }
   return chunks;
 }
-
-// TODO: delete extract pdf method
-// // --- PDF Text Extraction ---
-// export async function extractPdfText(fileBuffer: Uint8Array): Promise<string> {
-//   const text = await geminiVision(fileBuffer, PDF_EXTRACT_PROMPT);
-//   if (!text) throw new Error("Gemini returned no text for PDF")
-//   return text;
-// }
 
 // --- Parse Sections ---
 export async function parseSections(text: string) {
@@ -250,35 +240,6 @@ export async function generateNodes(
     ...(outline[i]?.paper_heading ? { paper_heading: outline[i].paper_heading } : {}),
   }));
 }
-
-// function parseMarkdownSlides(markdown: string): Slide[] {
-//   const slideBlocks = markdown.split(/\n---\n/);
-
-//   return slideBlocks.map((block) => {
-//     const titleMatch = block.match(/##\s*(.+)/);
-//     const timeMatch = block.match(/Estimated Time:\s*(\d+)/);
-//     const bulletMatches = block.match(/^- (.+)/gm);
-
-//     const title = titleMatch?.[1]?.trim() ?? "Untitled Slide";
-//     const est_time = timeMatch ? Number(timeMatch[1]) : 2;
-
-//     const speaker_notes = bulletMatches
-//       ? bulletMatches.map(b => b.replace(/^- /, "").trim())
-//       : [];
-
-//     const cleanedMarkdown = block
-//       .replace(/##\s*.+/, "")
-//       .replace(/Estimated Time:\s*\d+.*\n?/, "")
-//       .trim();
-
-//     return {
-//       title,
-//       est_time,
-//       speaker_notes,
-//       contentMarkdown: cleanedMarkdown,
-//     };
-//   });
-// }
 
 // Matches [src:section|excerpt] — used per-line for structured parsing
 const SRC_MARKER_RE = /\s*\[src:([a-zA-Z]+)\|([^\]]+)\]\s*$/;

@@ -9,19 +9,3 @@ export async function geminiText(prompt: string) {
   });
   return res.text;
 }
-
-// TODO: delete geminiVision (only used for text extraction previously)
-// export async function geminiVision(file: Uint8Array, prompt: string) {
-//   const contents = [
-//     { text: prompt },
-//     { inlineData: {
-//       mimeType: 'application/pdf',
-//       data: Buffer.from(file).toString("base64")
-//     }}
-//   ];
-//   const res = await genAI.models.generateContent({
-//     model: "gemini-3-flash-preview",
-//     contents: contents
-//   });
-//   return res.text;
-// }
