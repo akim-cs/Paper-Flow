@@ -293,17 +293,14 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
 
         <div className="mt-1 flex items-center gap-1.5 flex-wrap">
           <span className={`text-xs ${theme.secondaryTextAlt}`}>{est_time} min</span>
-          {source_section && (() => {
-            const style = SOURCE_SECTION_STYLES[source_section] ?? { bg: 'bg-zinc-50', text: 'text-zinc-600', border: 'border-zinc-200' };
-            return (
-              <span
-                className={`text-[10px] font-medium px-1.5 py-0.5 rounded border capitalize ${style.bg} ${style.text} ${style.border}`}
-                title={paper_heading ?? source_section}
-              >
-                {source_section}
-              </span>
-            );
-          })()}
+          {source_section && (
+            <span
+              className={`text-[10px] font-medium px-1.5 py-0.5 rounded border capitalize bg-sky-50 text-paper-flow-text/80 border-paper-flow-text/80`}
+              title={paper_heading ?? source_section}
+            >
+              {source_section}
+            </span>
+          )}
           {/* Transcript status indicator */}
           {transcript ? (
             <span
@@ -323,11 +320,6 @@ function SlideNode({ id, data, sourcePosition, targetPosition }: NodeProps) {
             </span>
           )}
         </div>
-        {paper_heading && (
-          <p className={`text-[10px] ${theme.secondaryText} opacity-70 mt-0.5 leading-tight truncate`} title={paper_heading}>
-            {paper_heading}
-          </p>
-        )}
       </div>
 
       {/* Expanded content - Markdown editor */}
