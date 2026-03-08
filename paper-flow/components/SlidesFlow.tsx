@@ -13,6 +13,7 @@ import {
   Position,
   type Node,
   type Edge,
+  type ReactFlowInstance,
 } from '@xyflow/react';
 
 import '@xyflow/react/dist/style.css';
@@ -30,6 +31,13 @@ import TranscriptPanel from './TranscriptPanel';
 const nodeTypes: Record<string, ComponentType<any>> = {
   slideNode: SlideNode,
 };
+
+// ─── Initial viewport tuning ──────────────────────────────────────────────────
+// Adjust these if you want more or fewer nodes visible at startup.
+const FIT_ALL_THRESHOLD = 6;   // 1–N nodes: show the full graph
+const VISIBLE_NODES_MEDIUM = 6; // 7–10 nodes: show this many from the start
+const VISIBLE_NODES_LARGE = 5;  // 11+ nodes: show this many from the start
+// ──────────────────────────────────────────────────────────────────────────────
 
 function HelpPopoverItem({ children }: { children: ReactNode }) {
   return (
@@ -101,6 +109,28 @@ export default function SlidesFlow({ slides, onSlidesChange, config, sections }:
   const nodesRef = useRef(nodes);
   const insertIdRef = useRef(0);
   const [expandedNodeIds, setExpandedNodeIds] = useState<Set<string>>(() => new Set());
+
+  // Stored React Flow instance — used for the "Fit All" button
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const rfInstanceRef = useRef<ReactFlowInstance<any, any> | null>(null);
+
+  // Initial fitView options: for small graphs show everything; for larger graphs
+  // fit only the first N nodes so the canvas stays readable on load.
+  const fitViewOptions = useMemo(() => {
+    const n = initialNodes.length;
+    if (n <= FIT_ALL_THRESHOLD) {
+      return { padding: 0.15 };
+    }
+    const visibleCount = n <= 10 ? VISIBLE_NODES_MEDIUM : VISIBLE_NODES_LARGE;
+    return {
+      padding: 0.15,
+      nodes: initialNodes.slice(0, visibleCount).map((node) => ({ id: node.id })),
+    };
+  }, [initialNodes]);
+
+  const handleFitAll = useCallback(() => {
+    rfInstanceRef.current?.fitView({ padding: 0.1, duration: 400 });
+  }, []);
 
   // Transcript panel state
   const [transcriptPanelState, setTranscriptPanelState] = useState<{
@@ -511,6 +541,15 @@ export default function SlidesFlow({ slides, onSlidesChange, config, sections }:
           </div>
           <button
             type="button"
+            onClick={handleFitAll}
+            disabled={nodes.length === 0}
+            className="px-3 py-1.5 text-sm font-medium rounded-lg border border-paper-flow-border bg-white text-paper-flow-text hover:bg-paper-flow-border/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+            title="Zoom to fit all slides"
+          >
+            Fit All
+          </button>
+          <button
+            type="button"
             onClick={handleDownloadPptx}
             disabled={nodes.length === 0}
             className="px-3 py-1.5 text-sm font-medium rounded-lg border border-paper-flow-border bg-[#D99D97] text-white hover:bg-paper-flow-border disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
@@ -528,8 +567,10 @@ export default function SlidesFlow({ slides, onSlidesChange, config, sections }:
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onNodeDragStop={onNodeDragStop}
+            onInit={(instance) => { rfInstanceRef.current = instance; }}
             deleteKeyCode={['Backspace', 'Delete']}
             fitView
+            fitViewOptions={fitViewOptions}
             className="rounded-xl"
           >
             <Background gap={16} bgColor="#f3d8d240" size={1} />
