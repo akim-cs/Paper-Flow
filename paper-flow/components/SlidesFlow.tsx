@@ -4,7 +4,6 @@ import { useMemo, useEffect, useCallback, useRef, useState, type ComponentType, 
 import {
   ReactFlow,
   Background,
-  Controls,
   MiniMap,
   useNodesState,
   useEdgesState,
@@ -503,6 +502,32 @@ export default function SlidesFlow({ slides, onSlidesChange, config, sections }:
     <>
       <div className="h-[80vh] w-full flex flex-col rounded-xl border border-paper-flow-border bg-white">
         <div className="flex-shrink-0 flex items-center justify-end gap-2 px-3 py-2 border-b border-paper-flow-border bg-paper-flow-canvas-solid/50 rounded-t-xl">
+          <button
+            type="button"
+            onClick={() => rfInstanceRef.current?.zoomIn()}
+            className="flex h-8 w-6 items-center justify-center text-paper-flow-text hover:opacity-70 transition-opacity cursor-pointer"
+            title="Zoom in"
+          >
+            <span className="text-lg leading-none">+</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => rfInstanceRef.current?.zoomOut()}
+            className="flex h-8 w-6 items-center justify-center text-paper-flow-text hover:opacity-70 transition-opacity cursor-pointer"
+            title="Zoom out"
+          >
+            <span className="text-lg leading-none">−</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleFitAll}
+            className="flex h-8 w-8 items-center justify-center text-paper-flow-text hover:opacity-70 transition-opacity cursor-pointer"
+            title="Fit all slides"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+            </svg>
+          </button>
           <div className="relative flex items-center gap-2" ref={helpRef}>
             <button
               type="button"
@@ -541,15 +566,6 @@ export default function SlidesFlow({ slides, onSlidesChange, config, sections }:
           </div>
           <button
             type="button"
-            onClick={handleFitAll}
-            disabled={nodes.length === 0}
-            className="px-3 py-1.5 text-sm font-medium rounded-lg border border-paper-flow-border bg-white text-paper-flow-text hover:bg-paper-flow-border/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
-            title="Zoom to fit all slides"
-          >
-            Fit All
-          </button>
-          <button
-            type="button"
             onClick={handleDownloadPptx}
             disabled={nodes.length === 0}
             className="px-3 py-1.5 text-sm font-medium rounded-lg border border-paper-flow-border bg-[#D99D97] text-white hover:bg-paper-flow-border disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
@@ -574,7 +590,6 @@ export default function SlidesFlow({ slides, onSlidesChange, config, sections }:
             className="rounded-xl"
           >
             <Background gap={16} bgColor="#f3d8d240" size={1} />
-            <Controls />
             <MiniMap />
           </ReactFlow>
         </div>
