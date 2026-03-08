@@ -16,7 +16,7 @@ import {
 } from '@xyflow/react';
 
 import '@xyflow/react/dist/style.css';
-import type { Slide, PresentationConfig } from '../app/types/slides';
+import type { Slide, PresentationConfig, Sections } from '../app/types/slides';
 import {
   slidesToFlowNodes,
   NODE_WIDTH,
@@ -47,6 +47,7 @@ type Props = {
   slides: Slide[];
   onSlidesChange?: (slides: Slide[]) => void;
   config?: PresentationConfig;
+  sections?: Sections;
 };
 
 function nodesToOrderedSlides(nodes: Node[]): Slide[] {
@@ -59,10 +60,11 @@ function nodesToOrderedSlides(nodes: Node[]): Slide[] {
       contentMarkdown: (node.data.contentMarkdown as string) ?? '',
     };
 
-    // Only include transcript if it exists (Firebase doesn't allow undefined)
-    if (node.data.transcript) {
-      slide.transcript = node.data.transcript as string;
-    }
+    // Only include optional fields if present (Firebase doesn't allow undefined)
+    if (node.data.transcript) slide.transcript = node.data.transcript as string;
+    if (node.data.source_section) slide.source_section = node.data.source_section as Slide['source_section'];
+    if (node.data.paper_heading) slide.paper_heading = node.data.paper_heading as string;
+    if (node.data.bulletSources) slide.bulletSources = node.data.bulletSources as Slide['bulletSources'];
 
     return slide;
   });
@@ -88,7 +90,7 @@ function applyExpandLayout(nodes: Node[], expandedNodeIds: Set<string>): Node[] 
   });
 }
 
-export default function SlidesFlow({ slides, onSlidesChange, config }: Props) {
+export default function SlidesFlow({ slides, onSlidesChange, config, sections }: Props) {
   const { nodes: initialNodes, edges: initialEdges } = useMemo(
     () => slidesToFlowNodes(slides),
     [slides]
@@ -516,6 +518,7 @@ export default function SlidesFlow({ slides, onSlidesChange, config }: Props) {
           onGenerateTranscript={handleGenerateTranscript}
           onClose={handleCloseTranscript}
           config={config}
+          sections={sections}
         />
       )}
     </>

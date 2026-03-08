@@ -9,9 +9,10 @@ export async function POST(req: Request) {
       slideIndex?: number;
       audienceLevel?: PresentationConfig["audienceLevel"];
       timeLimit?: number;
+      researcherType?: PresentationConfig["researcherType"];
     } = await req.json();
 
-    const { slides, slideIndex, audienceLevel, timeLimit } = body;
+    const { slides, slideIndex, audienceLevel, timeLimit, researcherType } = body;
 
     if (!slides || slides.length === 0) {
       return NextResponse.json({ error: "Missing slides" }, { status: 400 });
@@ -25,7 +26,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing presentation configuration" }, { status: 400 });
     }
 
-    const transcript = await generateTranscript(slides, slideIndex, { audienceLevel, timeLimit });
+    const transcript = await generateTranscript(slides, slideIndex, { audienceLevel, timeLimit, researcherType: researcherType ?? 'author' });
 
     return NextResponse.json({ transcript });
   } catch (err: unknown) {

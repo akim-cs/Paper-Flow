@@ -8,6 +8,13 @@ export const HORIZONTAL_GAP = 60;
 /** Width when expanded (user preference, e.g. 300) */
 export const NODE_WIDTH_EXPANDED = 300;
 
+// Safety strip for slides persisted before server-side cleanup was added.
+// New slides are already clean; this is a no-op for them.
+const LEGACY_SRC_RE = /\s*\[src:[a-zA-Z]+\|[^\]]*\]/g;
+function stripLegacySrcMarkers(md: string): string {
+  return md.replace(LEGACY_SRC_RE, '');
+}
+
 export function slidesToFlowNodes(slides: Slide[]): { nodes: Node[]; edges: Edge[] } {
   const nodes: Node[] = slides.map((slide, index) => ({
     id: slide.id ?? `slide-${index}`,
@@ -19,8 +26,11 @@ export function slidesToFlowNodes(slides: Slide[]): { nodes: Node[]; edges: Edge
       label: slide.title,              // good to keep for any node label usage
       title: slide.title,              // IMPORTANT: SlideNode reads data.title
       est_time: slide.est_time,
-      contentMarkdown: slide.contentMarkdown ?? '',
+      contentMarkdown: stripLegacySrcMarkers(slide.contentMarkdown ?? ''),
       transcript: slide.transcript,    // Include existing transcript if present
+      source_section: slide.source_section,
+      paper_heading: slide.paper_heading,
+      bulletSources: slide.bulletSources,
     },
   }));
 

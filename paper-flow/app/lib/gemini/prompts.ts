@@ -15,10 +15,30 @@ Classify the following text into research paper sections:
 Rules:
 - Preserve original text verbatim.
 - Do NOT summarize or rewrite.
-- If a section is missing, return an empty string.
-- Output ONLY valid JSON with keys: abstract, introduction, methodology, results, discussion, conclusion.
+- If a section is missing, return an empty string for the text and null for the heading.
 - Exclude references, appendix, acknowledgements, funding, ethics statements, and extended derivations.
 - Do NOT mention excluded sections.
+- Output ONLY valid JSON with these keys:
+  - abstract, introduction, methodology, results, discussion, conclusion (section text, verbatim)
+  - headings: an object with the same keys, where each value is the EXACT heading string as it appears in the paper (e.g. "3. PRINCIPLES FOR MIXED-INITIATIVE UI", "Results and Discussion", "2.1 Methodology"). Use null if the section is absent or has no explicit heading.
+
+Example output shape:
+{
+  "abstract": "...",
+  "introduction": "...",
+  "methodology": "...",
+  "results": "...",
+  "discussion": "...",
+  "conclusion": "...",
+  "headings": {
+    "abstract": "Abstract",
+    "introduction": "1. Introduction",
+    "methodology": "3. System Design",
+    "results": "4. Evaluation",
+    "discussion": "5. Discussion",
+    "conclusion": "6. Conclusion"
+  }
+}
 
 TEXT:
 ${text}
@@ -59,6 +79,7 @@ Rules:
 - Output JSON array of objects with:
   - title
   - source_section (abstract | introduction | methodology | results | discussion | conclusion)
+  - paper_heading: the exact heading string from sections.headings[source_section]; omit the field if headings is absent or the heading is null
 - Do NOT summarize the sections; use only information present.
 - Output ONLY JSON.
 
@@ -96,12 +117,39 @@ You are generating structured presentation slides in Markdown.
 
 ${perspectiveGuidance}
 
+════════════════════════════════════════════════════════
+⚠️  MANDATORY CITATION RULE — THIS IS THE MOST IMPORTANT REQUIREMENT
+════════════════════════════════════════════════════════
+EVERY bullet line (any line starting with -, *, or +, including sub-bullets) MUST end with:
+  [src:section_name|verbatim excerpt]
+
+Rules:
+- section_name must be one of: abstract, introduction, methodology, results, discussion, conclusion
+- section_name must match where the excerpt ACTUALLY lives in the paper (different bullets on the same slide WILL have different section_names)
+- The excerpt MUST be copied verbatim from the SECTIONS below — never paraphrase
+- Maximum excerpt length: 120 characters
+- The marker must appear at the END of the bullet line, before the newline
+- Sub-bullets require citations too
+- Only non-bullet lines (headings ### or plain text) are exempt
+
+VALID ✓ (all bullets cited, including sub-bullets):
+- The system processes 10,000 queries per second [src:results|the system processes 10,000 queries per second at peak load]
+  - Throughput improved 3× over the baseline [src:results|throughput improved 3× over the baseline system]
+- Participants rated usability 4.7/5 [src:methodology|participants rated usability on a 5-point Likert scale]
+
+INVALID ✗ (missing citations — output like this will be REJECTED and retried):
+- The system processes 10,000 queries per second
+  - Throughput improved 3× over the baseline
+- Participants rated usability 4.7/5
+
+If a bullet lacks a [src:...] marker, your output is malformed. Every bullet. No exceptions.
+════════════════════════════════════════════════════════
+
 CRITICAL RULES:
 - Generate EXACTLY the number of slides in the outline (maximum ${maxSlides}).
 - Total presentation time: ${totalTime} minutes.
 - Distribute time approximately evenly across slides.
 - Include ONLY content present in the provided paper sections.
-- Keep citations exactly as written.
 - Exclude references, appendix, acknowledgements, funding, ethics statements.
 - Output ONLY Markdown.
 - Separate slides using: --- (horizontal rule)
@@ -111,11 +159,12 @@ FORMAT EACH SLIDE EXACTLY LIKE THIS:
 ## Slide Title
 Estimated Time: X minutes
 
-Use clean Markdown hierarchy:
-- Bullet points
-- Sub-bullets where helpful
-- Bold key terms
-- Short structured sections if helpful (### Subheading)
+- Bullet with citation [src:section|verbatim excerpt]
+  - Sub-bullet with citation [src:section|verbatim excerpt]
+- Another bullet [src:section|verbatim excerpt]
+
+FINAL CHECK (do this before outputting):
+Scan every line. Count bullet lines (starting with -, *, or +). Verify each one ends with [src:section|...]. If any are missing, add them before outputting.
 
 ---
 
@@ -126,6 +175,71 @@ SECTIONS:
 ${sections}
 `;
 };
+
+// ============================
+// 3b) CITATION REPAIR PROMPT
+// ============================
+// Used when generated markdown has bullets missing [src:...] markers.
+// Takes the broken markdown and repairs ONLY the missing citations in-place.
+export const REPAIR_SLIDES_PROMPT = (brokenMarkdown: string, sections: string) => `
+The following slide markdown is missing [src:section|excerpt] citation markers on some bullet lines.
+
+YOUR ONLY TASK: add the missing [src:...] markers to every bullet line that currently lacks one.
+
+Rules:
+- Format: [src:section_name|verbatim excerpt up to 120 characters]
+- section_name must be one of: abstract, introduction, methodology, results, discussion, conclusion
+- The excerpt MUST be verbatim text from the PAPER SECTIONS provided below — never paraphrase
+- Place the marker at the END of the bullet line
+- Do NOT change any other text, formatting, slide titles, or structure
+- Sub-bullets also need citations if missing
+- Output ONLY the corrected markdown — no explanation, no code fences
+
+BROKEN MARKDOWN:
+${brokenMarkdown}
+
+PAPER SECTIONS (cite verbatim from this text):
+${sections}
+`;
+
+// ============================
+// 3c) BULLET-SOURCE ATTRIBUTION PROMPT
+// ============================
+// Fallback: used after generation when bulletSources are still missing.
+// Asks the model to produce structured JSON mapping bullet texts to verbatim
+// paper excerpts. This is a simpler retrieval task and more reliable than
+// inline marker generation.
+export const ATTRIBUTE_SOURCES_PROMPT = (
+  slides: Array<{ index: number; title: string; bullets: string[] }>,
+  sectionText: string
+) => `
+You are matching presentation slide bullets to verbatim source text in a research paper.
+
+For each bullet listed below, find the section of the paper and a short verbatim excerpt that best supports that bullet's claim.
+
+Output ONLY valid JSON — no code fences, no explanation, nothing else:
+[
+  {
+    "slideIndex": 0,
+    "bulletId": "the exact bullet text as given",
+    "normalizedSection": "abstract|introduction|methodology|results|discussion|conclusion",
+    "excerpt": "verbatim excerpt from the paper, max 120 characters"
+  }
+]
+
+Rules:
+- Only include entries where you can find a clear verbatim match in the paper
+- normalizedSection MUST reflect where the excerpt actually appears in the paper
+- The excerpt MUST be copied verbatim — never paraphrase
+- bulletId MUST be the exact string from the bullet list below — copy it character-for-character
+- Skip bullets for which no clear source exists
+
+SLIDE BULLETS:
+${JSON.stringify(slides, null, 2)}
+
+PAPER SECTIONS:
+${sectionText}
+`;
 
 // ============================
 // 4) TRANSCRIPT GENERATION PROMPT

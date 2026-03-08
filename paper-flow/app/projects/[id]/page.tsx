@@ -47,6 +47,13 @@ function ProjectEditorContent() {
           return;
         }
 
+        // Dev logging: verify bulletSources survived the Firestore round-trip
+        if (process.env.NODE_ENV === 'development') {
+          loadedProject.slides.forEach((s: Slide, i: number) => {
+            console.log(`[projects/[id]] POST-LOAD slide ${i} "${s.title}": ${s.bulletSources?.length ?? 0} bulletSources`);
+          });
+        }
+
         setProject(loadedProject);
         setSlides(loadedProject.slides);
         setProjectName(loadedProject.name);
@@ -241,7 +248,7 @@ function ProjectEditorContent() {
       </header>
 
       <main className="flex-1 p-6">
-        <SlidesFlow slides={slides} onSlidesChange={handleSlidesChange} config={project.config} />
+        <SlidesFlow slides={slides} onSlidesChange={handleSlidesChange} config={project.config} sections={project.sections} />
       </main>
     </div>
   );

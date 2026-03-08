@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useAuth } from '@/app/lib/firebase/AuthContext';
 import { createProject } from '@/app/lib/firebase/firestore';
 import AuthGuard from '@/components/auth/AuthGuard';
-import type { Slide, PresentationConfig } from '@/app/types/slides';
+import type { Slide, PresentationConfig, Sections } from '@/app/types/slides';
 
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
   let binary = '';
@@ -101,11 +101,18 @@ function NewProjectContent() {
         throw new Error(data?.error || 'Failed to generate slides');
       }
 
-      const slides: Slide[] = await res.json();
+      const { slides, sections }: { slides: Slide[]; sections: Sections } = await res.json();
 
       // Extract project name from first slide title or filename
       const projectName =
         slides[0]?.title || originalFileName?.replace('.pdf', '') || 'Untitled Project';
+
+      // Dev logging: verify bulletSources are present before save
+      if (process.env.NODE_ENV === 'development') {
+        slides.forEach((s, i) => {
+          console.log(`[new/page] PRE-SAVE slide ${i} "${s.title}": ${s.bulletSources?.length ?? 0} bulletSources`);
+        });
+      }
 
       // Create project in Firestore
       const projectId = await createProject(user.uid, {
@@ -113,6 +120,7 @@ function NewProjectContent() {
         extractedText,
         config: { audienceLevel, timeLimit, researcherType: researcherType! },
         slides,
+        sections,
         originalFileName: originalFileName || undefined,
       });
 

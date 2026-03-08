@@ -1,5 +1,5 @@
 import type { Timestamp } from 'firebase/firestore';
-import type { Slide, PresentationConfig } from './slides';
+import type { Slide, PresentationConfig, Sections } from './slides';
 
 export interface Project {
   id: string;
@@ -8,6 +8,7 @@ export interface Project {
   extractedText: string;
   config: PresentationConfig;
   slides: Slide[];
+  sections?: Sections;
   originalFileName?: string;
   createdAt: Timestamp;
   updatedAt: Timestamp;
@@ -18,6 +19,7 @@ export interface CreateProjectData {
   extractedText: string;
   config: PresentationConfig;
   slides: Slide[];
+  sections?: Sections;
   originalFileName?: string;
 }
 

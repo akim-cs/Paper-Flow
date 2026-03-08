@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { paperFlowTheme as theme } from '../app/lib/theme';
-import type { Slide, PresentationConfig } from '../app/types/slides';
+import type { Slide, PresentationConfig, Sections } from '../app/types/slides';
 
 type TranscriptPanelProps = {
   isOpen: boolean;
@@ -13,6 +13,25 @@ type TranscriptPanelProps = {
   onGenerateTranscript: (slideId: string) => void;
   onClose: () => void;
   config: PresentationConfig;
+  sections?: Sections;
+};
+
+const SOURCE_SECTION_LABELS: Record<string, string> = {
+  abstract: 'Abstract',
+  introduction: 'Introduction',
+  methodology: 'Methodology',
+  results: 'Results',
+  discussion: 'Discussion',
+  conclusion: 'Conclusion',
+};
+
+const SOURCE_SECTION_STYLES: Record<string, { bg: string; text: string; border: string; headerBg: string }> = {
+  abstract:     { bg: 'bg-rose-50',   text: 'text-rose-700',   border: 'border-rose-200',   headerBg: 'bg-rose-100' },
+  introduction: { bg: 'bg-sky-50',    text: 'text-sky-700',    border: 'border-sky-200',    headerBg: 'bg-sky-100' },
+  methodology:  { bg: 'bg-amber-50',  text: 'text-amber-700',  border: 'border-amber-200',  headerBg: 'bg-amber-100' },
+  results:      { bg: 'bg-green-50',  text: 'text-green-700',  border: 'border-green-200',  headerBg: 'bg-green-100' },
+  discussion:   { bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-200', headerBg: 'bg-violet-100' },
+  conclusion:   { bg: 'bg-teal-50',   text: 'text-teal-700',   border: 'border-teal-200',   headerBg: 'bg-teal-100' },
 };
 
 export default function TranscriptPanel({
@@ -24,9 +43,11 @@ export default function TranscriptPanel({
   onGenerateTranscript,
   onClose,
   config,
+  sections,
 }: TranscriptPanelProps) {
   const [width, setWidth] = useState(500);
   const [isResizing, setIsResizing] = useState(false);
+  const [sourceExpanded, setSourceExpanded] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -63,6 +84,11 @@ export default function TranscriptPanel({
   const activeSlide = slides.find((s) => s.id === activeSlideId);
   const hasTranscript = activeSlide?.transcript && activeSlide.transcript.length > 0;
   const isGenerating = generatingSlideId === activeSlideId;
+
+  const sourceSection = activeSlide?.source_section;
+  const paperHeading = activeSlide?.paper_heading;
+  const sourceText = sourceSection && sections ? sections[sourceSection] : null;
+  const sourceStyle = sourceSection ? (SOURCE_SECTION_STYLES[sourceSection] ?? { bg: 'bg-zinc-50', text: 'text-zinc-600', border: 'border-zinc-200', headerBg: 'bg-zinc-100' }) : null;
 
   return (
     <div
@@ -206,6 +232,37 @@ export default function TranscriptPanel({
                   Regenerate Transcript
                 </button>
               </div>
+
+              {/* Paper Source Section */}
+              {sourceSection && sourceStyle && (
+                <div className={`mt-4 rounded-lg border ${sourceStyle.border} overflow-hidden`}>
+                  <button
+                    onClick={() => setSourceExpanded((v) => !v)}
+                    className={`w-full flex items-center justify-between px-4 py-2.5 text-left ${sourceStyle.headerBg} ${sourceStyle.text} font-medium text-sm transition-colors`}
+                  >
+                    <span className="flex flex-col items-start gap-0.5">
+                      <span>Paper Source: <span className="capitalize">{SOURCE_SECTION_LABELS[sourceSection] ?? sourceSection}</span></span>
+                      {paperHeading && (
+                        <span className="text-[11px] font-normal opacity-75 leading-tight">{paperHeading}</span>
+                      )}
+                    </span>
+                    <span className="text-xs ml-2">{sourceExpanded ? '▲' : '▼'}</span>
+                  </button>
+                  {sourceExpanded && (
+                    <div className={`${sourceStyle.bg} px-4 py-3 max-h-64 overflow-y-auto`}>
+                      {sourceText ? (
+                        <p className={`text-xs leading-relaxed whitespace-pre-wrap ${sourceStyle.text} opacity-90`}>
+                          {sourceText}
+                        </p>
+                      ) : (
+                        <p className={`text-xs italic ${sourceStyle.text} opacity-70`}>
+                          Source text not available for this project.
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
             </>
           ) : (
             <div className="flex flex-col items-center justify-center h-full gap-4">
@@ -218,6 +275,37 @@ export default function TranscriptPanel({
               >
                 Generate Transcript
               </button>
+
+              {/* Paper Source Section (no transcript yet) */}
+              {sourceSection && sourceStyle && (
+                <div className={`w-full mt-4 rounded-lg border ${sourceStyle.border} overflow-hidden`}>
+                  <button
+                    onClick={() => setSourceExpanded((v) => !v)}
+                    className={`w-full flex items-center justify-between px-4 py-2.5 text-left ${sourceStyle.headerBg} ${sourceStyle.text} font-medium text-sm transition-colors`}
+                  >
+                    <span className="flex flex-col items-start gap-0.5">
+                      <span>Paper Source: <span className="capitalize">{SOURCE_SECTION_LABELS[sourceSection] ?? sourceSection}</span></span>
+                      {paperHeading && (
+                        <span className="text-[11px] font-normal opacity-75 leading-tight">{paperHeading}</span>
+                      )}
+                    </span>
+                    <span className="text-xs ml-2">{sourceExpanded ? '▲' : '▼'}</span>
+                  </button>
+                  {sourceExpanded && (
+                    <div className={`${sourceStyle.bg} px-4 py-3 max-h-64 overflow-y-auto`}>
+                      {sourceText ? (
+                        <p className={`text-xs leading-relaxed whitespace-pre-wrap ${sourceStyle.text} opacity-90`}>
+                          {sourceText}
+                        </p>
+                      ) : (
+                        <p className={`text-xs italic ${sourceStyle.text} opacity-70`}>
+                          Source text not available for this project.
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>

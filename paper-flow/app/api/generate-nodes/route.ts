@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     const outline = await generateOutline(sections, { audienceLevel, timeLimit, researcherType });
     const slides: Slide[] = await generateNodes(outline, sections, { audienceLevel, timeLimit, researcherType });
 
-    return NextResponse.json(slides);
+    return NextResponse.json({ slides, sections });
   } catch (err: unknown) {
     console.error("Error in generating nodes:", err);
     return NextResponse.json({ error: err instanceof Error ? err.message : "Unknown error"}, { status: 500 });

@@ -27,6 +27,7 @@ export async function createProject(
     extractedText: data.extractedText,
     config: data.config,
     slides: data.slides,
+    ...(data.sections ? { sections: data.sections } : {}),
     originalFileName: data.originalFileName,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
@@ -53,6 +54,7 @@ export async function getProject(projectId: string): Promise<Project | null> {
       researcherType: data.config.researcherType || 'author'
     },
     slides: data.slides,
+    ...(data.sections ? { sections: data.sections } : {}),
     originalFileName: data.originalFileName,
     createdAt: data.createdAt as Timestamp,
     updatedAt: data.updatedAt as Timestamp,
@@ -79,6 +81,7 @@ export async function getUserProjects(userId: string): Promise<Project[]> {
         researcherType: data.config.researcherType || 'author'
       },
       slides: data.slides,
+      ...(data.sections ? { sections: data.sections } : {}),
       originalFileName: data.originalFileName,
       createdAt: data.createdAt as Timestamp,
       updatedAt: data.updatedAt as Timestamp,
