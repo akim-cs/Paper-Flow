@@ -191,25 +191,42 @@ function NewProjectContent() {
             {/* Researcher Type Selector Card */}
             <div className="mb-6 rounded-xl border border-paper-flow-border bg-white p-8">
               <h2 className="mb-2 text-xl font-semibold text-zinc-900">
-                I am a...
+                You are a
               </h2>
               <p className="mb-6 text-sm text-zinc-500">
                 Select your role to help us tailor the presentation generation.
               </p>
 
               <div className="flex overflow-hidden rounded-lg border border-zinc-300">
-                {(['author', 'academic'] as const).map((type) => (
+                {(['author', 'academic'] as const).map((type, index) => (
                   <button
                     key={type}
                     type="button"
                     onClick={() => setResearcherType(type)}
-                    className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                    className={`flex flex-1 flex-col items-center gap-3 py-4 px-4 text-sm font-medium transition-colors ${
                       researcherType === type
                         ? 'bg-paper-flow-border text-white'
                         : 'bg-white text-zinc-700 hover:bg-zinc-100'
-                    }`}
+                    } ${index === 0 ? 'border-r border-zinc-300' : ''}`}
                   >
-                    {type === 'author' ? 'Author Researcher' : 'Academic Researcher'}
+                    <svg
+                      className={`h-12 w-12 ${
+                        researcherType === type ? 'text-white' : 'text-zinc-400'
+                      }`}
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={1.5}
+                    >
+                      <circle cx="12" cy="12" r="10" strokeWidth={2} />
+                      <circle cx="12" cy="9" r="3" strokeWidth={2} />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M6.168 18.849A4.5 4.5 0 0112 16.5a4.5 4.5 0 015.832 2.349"
+                      />
+                    </svg>
+                    <span>{type === 'author' ? 'Author Researcher' : 'Academic Researcher'}</span>
                   </button>
                 ))}
               </div>
