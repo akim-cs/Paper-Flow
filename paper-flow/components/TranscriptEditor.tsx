@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import type { MDXEditorProps } from '@mdxeditor/editor';
 import "@mdxeditor/editor/style.css";
@@ -30,9 +30,22 @@ export default function TranscriptEditor({
   className = '',
   ...props
 }: TranscriptEditorProps) {
+  // Latch: once non-empty transcript is seen, switch to a stable 'populated' key
+  // so InitializedMDXEditor remounts exactly once (empty → populated) and never
+  // flickers again during user edits or slide switches.
+  const hasSeenContentRef = useRef(!!transcript);
+  if (transcript && !hasSeenContentRef.current) {
+    hasSeenContentRef.current = true;
+  }
+  const editorKey = hasSeenContentRef.current ? 'populated' : 'empty';
+
   const handleChange = useCallback(
-    (newMarkdown: string) => {
-      onTranscriptChange(newMarkdown);
+    (newMarkdown: string, initialMarkdownNormalize?: boolean) => {
+      // Skip MDXEditor's initialization-normalization event so it
+      // never overwrites real transcript content during mounting.
+      if (!initialMarkdownNormalize) {
+        onTranscriptChange(newMarkdown);
+      }
     },
     [onTranscriptChange]
   );
@@ -40,6 +53,7 @@ export default function TranscriptEditor({
   return (
     <div className={`nodrag nopan min-h-[200px] w-full ${className}`}>
       <InitializedMDXEditor
+        key={editorKey}
         {...props}
         markdown={transcript}
         onChange={handleChange}

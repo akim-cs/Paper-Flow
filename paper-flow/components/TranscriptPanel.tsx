@@ -256,6 +256,7 @@ export default function TranscriptPanel({
             <>
               <div className="prose prose-sm max-w-none">
                 <TranscriptWithTimestamps
+                  key={activeSlide.id}
                   transcript={activeSlide.transcript!}
                   onTranscriptChange={(newTranscript) => {
                     onUpdateTranscript(activeSlide.id, newTranscript);
