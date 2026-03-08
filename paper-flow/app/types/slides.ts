@@ -26,6 +26,7 @@ export type Slide = {
 export type PresentationConfig = {
   audienceLevel: 'beginner' | 'intermediate' | 'expert';
   researcherType: 'author' | 'academic';
+  presentationSize: 'short' | 'medium' | 'long';
 };
 
 /**

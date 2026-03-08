@@ -32,7 +32,7 @@ export default function ConfigScreen({ paperId, onComplete }: Props) {
 
       const slides: Slide[] = await res.json();
 
-      onComplete({ audienceLevel, researcherType: 'author' }, slides);
+      onComplete({ audienceLevel, researcherType: 'author', presentationSize: 'medium' }, slides);
     } catch (err) {
       console.error(err);
       if (err instanceof Error) {

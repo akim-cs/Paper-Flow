@@ -25,7 +25,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing presentation configuration" }, { status: 400 });
     }
 
-    const transcript = await generateTranscript(slides, slideIndex, { audienceLevel, researcherType: researcherType ?? 'author' });
+    const transcript = await generateTranscript(slides, slideIndex, { audienceLevel, researcherType: researcherType ?? 'author', presentationSize: 'medium' });
 
     return NextResponse.json({ transcript });
   } catch (err: unknown) {

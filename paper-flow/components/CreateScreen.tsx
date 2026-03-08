@@ -20,7 +20,7 @@ export default function CreateScreen() {
 
   const handleLoadDemo = () => {
     setPaperId('demo');
-    setConfig({ audienceLevel: 'intermediate', researcherType: 'author' });
+    setConfig({ audienceLevel: 'intermediate', researcherType: 'author', presentationSize: 'medium' });
     setSlides(octopusSlides);
   };
 

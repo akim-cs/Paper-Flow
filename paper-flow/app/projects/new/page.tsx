@@ -39,6 +39,8 @@ function NewProjectContent() {
     useState<PresentationConfig['audienceLevel']>('intermediate');
   const [researcherType, setResearcherType] =
     useState<PresentationConfig['researcherType'] | null>(null);
+  const [presentationSize, setPresentationSize] =
+    useState<PresentationConfig['presentationSize']>('medium');
 
   const processFile = async (file: File) => {
     if (file.type !== 'application/pdf') {
@@ -112,7 +114,7 @@ function NewProjectContent() {
       const res = await fetch('/api/generate-nodes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ extractedText, audienceLevel, researcherType }),
+        body: JSON.stringify({ extractedText, audienceLevel, researcherType, presentationSize }),
       });
 
       if (!res.ok) {
@@ -137,7 +139,7 @@ function NewProjectContent() {
       const projectId = await createProject(user.uid, {
         name: projectName,
         extractedText,
-        config: { audienceLevel, researcherType: researcherType! },
+        config: { audienceLevel, researcherType: researcherType!, presentationSize },
         slides,
         sections,
         originalFileName: originalFileName || undefined,
@@ -334,6 +336,33 @@ function NewProjectContent() {
                     }`}
                   >
                     {level}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <label className="mb-2 block text-sm font-medium">Presentation Length</label>
+              <div className="flex overflow-hidden rounded-lg border border-zinc-300">
+                {([
+                  { value: 'short', label: 'Short', hint: '~5 slides' },
+                  { value: 'medium', label: 'Medium', hint: '~8 slides' },
+                  { value: 'long',  label: 'Long',   hint: '~12 slides' },
+                ] as const).map(({ value, label, hint }) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setPresentationSize(value)}
+                    className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                      presentationSize === value
+                        ? 'bg-paper-flow-border text-white'
+                        : 'bg-white text-zinc-700 hover:bg-zinc-100'
+                    }`}
+                  >
+                    {label}
+                    <span className={`ml-1 text-xs ${presentationSize === value ? 'text-white/70' : 'text-zinc-400'}`}>
+                      {hint}
+                    </span>
                   </button>
                 ))}
               </div>

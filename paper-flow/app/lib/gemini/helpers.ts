@@ -58,7 +58,7 @@ export async function generateOutline(
   sections: Sections,
   config?: PresentationConfig
 ): Promise<OutlineItem[]> {
-  const promptWithConfig = OUTLINE_PROMPT(JSON.stringify(sections), config?.researcherType) +
+  const promptWithConfig = OUTLINE_PROMPT(JSON.stringify(sections), config?.researcherType, config?.presentationSize) +
     (config
       ? `\nAudience Level: ${config.audienceLevel}`
       : "");
@@ -159,7 +159,8 @@ export async function generateNodes(
     SLIDES_PROMPT(
       JSON.stringify(outline),
       sectionsJson,
-      config?.researcherType
+      config?.researcherType,
+      config?.presentationSize
     ) +
     (config
       ? `\nAudience Level: ${config.audienceLevel}`

@@ -47,8 +47,12 @@ ${text}
 // ============================
 // 2) PRESENTATION OUTLINE PROMPT
 // ============================
-export const OUTLINE_PROMPT = (sections: string, researcherType?: 'author' | 'academic') => {
-  const maxSlides = 8;
+export const OUTLINE_PROMPT = (
+  sections: string,
+  researcherType?: 'author' | 'academic',
+  presentationSize?: 'short' | 'medium' | 'long'
+) => {
+  const maxSlides = presentationSize === 'short' ? 5 : presentationSize === 'long' ? 12 : 8;
 
   const perspectiveNote = researcherType === 'author'
     ? `NOTE: The presenter is the AUTHOR of this research. Frame slides around first-person narrative.`
@@ -94,9 +98,10 @@ ${sections}
 export const SLIDES_PROMPT = (
   outline: string,
   sections: string,
-  researcherType?: 'author' | 'academic'
+  researcherType?: 'author' | 'academic',
+  presentationSize?: 'short' | 'medium' | 'long'
 ) => {
-  const maxSlides = 8;
+  const maxSlides = presentationSize === 'short' ? 5 : presentationSize === 'long' ? 12 : 8;
 
   const perspectiveGuidance = researcherType === 'author'
     ? `PRESENTER PERSPECTIVE: You are the AUTHOR presenting your own work.
