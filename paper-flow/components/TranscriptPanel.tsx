@@ -34,15 +34,6 @@ const SOURCE_SECTION_LABELS: Record<string, string> = {
   conclusion: 'Conclusion',
 };
 
-const SOURCE_SECTION_STYLES: Record<string, { bg: string; text: string; border: string; headerBg: string }> = {
-  abstract:     { bg: 'bg-rose-50',   text: 'text-rose-700',   border: 'border-rose-200',   headerBg: 'bg-rose-100' },
-  introduction: { bg: 'bg-sky-50',    text: 'text-sky-700',    border: 'border-sky-200',    headerBg: 'bg-sky-100' },
-  methodology:  { bg: 'bg-amber-50',  text: 'text-amber-700',  border: 'border-amber-200',  headerBg: 'bg-amber-100' },
-  results:      { bg: 'bg-green-50',  text: 'text-green-700',  border: 'border-green-200',  headerBg: 'bg-green-100' },
-  discussion:   { bg: 'bg-violet-50', text: 'text-violet-700', border: 'border-violet-200', headerBg: 'bg-violet-100' },
-  conclusion:   { bg: 'bg-teal-50',   text: 'text-teal-700',   border: 'border-teal-200',   headerBg: 'bg-teal-100' },
-};
-
 const MAX_INSTRUCTIONS_LENGTH = 800;
 
 export default function TranscriptPanel({
@@ -112,7 +103,6 @@ export default function TranscriptPanel({
   const sourceSection = activeSlide?.source_section;
   const paperHeading = activeSlide?.paper_heading;
   const sourceText = sourceSection && sections ? sections[sourceSection] : null;
-  const sourceStyle = sourceSection ? (SOURCE_SECTION_STYLES[sourceSection] ?? { bg: 'bg-zinc-50', text: 'text-zinc-600', border: 'border-zinc-200', headerBg: 'bg-zinc-100' }) : null;
 
   return (
     <div
@@ -318,28 +308,30 @@ export default function TranscriptPanel({
               </div>
 
               {/* Paper Source Section */}
-              {sourceSection && sourceStyle && (
-                <div className={`mt-4 rounded-lg border ${sourceStyle.border} overflow-hidden`}>
+              {sourceSection && (
+                <div className="mt-4 rounded-lg border border-paper-flow-border/40 overflow-hidden">
                   <button
                     onClick={() => setSourceExpanded((v) => !v)}
-                    className={`w-full flex items-center justify-between px-4 py-2.5 text-left ${sourceStyle.headerBg} ${sourceStyle.text} font-medium text-sm transition-colors`}
+                    className={`w-full flex items-center justify-between px-4 py-2.5 text-left bg-slate-100/70 hover:bg-slate-100 transition-colors`}
                   >
-                    <span className="flex flex-col items-start gap-0.5">
-                      <span>Paper Source: <span className="capitalize">{SOURCE_SECTION_LABELS[sourceSection] ?? sourceSection}</span></span>
+                    <span className="flex flex-col items-start gap-1 min-w-0">
+                      <span className={`text-[10px] font-semibold uppercase tracking-wider ${theme.secondaryText}`}>
+                        Source · {SOURCE_SECTION_LABELS[sourceSection] ?? sourceSection}
+                      </span>
                       {paperHeading && (
-                        <span className="text-[11px] font-normal opacity-75 leading-tight">{paperHeading}</span>
+                        <span className={`text-sm font-medium ${theme.titleText} leading-snug`}>{paperHeading}</span>
                       )}
                     </span>
-                    <span className="text-xs ml-2">{sourceExpanded ? '▲' : '▼'}</span>
+                    <span className={`text-xs ml-3 flex-shrink-0 ${theme.secondaryText}`}>{sourceExpanded ? '▲' : '▼'}</span>
                   </button>
                   {sourceExpanded && (
-                    <div className={`${sourceStyle.bg} px-4 py-3 max-h-64 overflow-y-auto`}>
+                    <div className="bg-white/60 px-4 py-3.5 max-h-64 overflow-y-auto border-t border-paper-flow-border/20">
                       {sourceText ? (
-                        <p className={`text-xs leading-relaxed whitespace-pre-wrap ${sourceStyle.text} opacity-90`}>
+                        <p className={`text-xs leading-[1.75] whitespace-normal ${theme.secondaryText}`}>
                           {sourceText}
                         </p>
                       ) : (
-                        <p className={`text-xs italic ${sourceStyle.text} opacity-70`}>
+                        <p className={`text-xs italic ${theme.secondaryText} opacity-70`}>
                           Source text not available for this project.
                         </p>
                       )}
@@ -374,28 +366,30 @@ export default function TranscriptPanel({
               </button>
 
               {/* Paper Source Section (no transcript yet) */}
-              {sourceSection && sourceStyle && (
-                <div className={`w-full mt-4 rounded-lg border ${sourceStyle.border} overflow-hidden`}>
+              {sourceSection && (
+                <div className="w-full mt-4 rounded-lg border border-paper-flow-border/40 overflow-hidden">
                   <button
                     onClick={() => setSourceExpanded((v) => !v)}
-                    className={`w-full flex items-center justify-between px-4 py-2.5 text-left ${sourceStyle.headerBg} ${sourceStyle.text} font-medium text-sm transition-colors`}
+                    className={`w-full flex items-center justify-between px-4 py-2.5 text-left bg-slate-100/70 hover:bg-slate-100 transition-colors`}
                   >
-                    <span className="flex flex-col items-start gap-0.5">
-                      <span>Paper Source: <span className="capitalize">{SOURCE_SECTION_LABELS[sourceSection] ?? sourceSection}</span></span>
+                    <span className="flex flex-col items-start gap-1 min-w-0">
+                      <span className={`text-[10px] font-semibold uppercase tracking-wider ${theme.secondaryText}`}>
+                        Source · {SOURCE_SECTION_LABELS[sourceSection] ?? sourceSection}
+                      </span>
                       {paperHeading && (
-                        <span className="text-[11px] font-normal opacity-75 leading-tight">{paperHeading}</span>
+                        <span className={`text-sm font-medium ${theme.titleText} leading-snug`}>{paperHeading}</span>
                       )}
                     </span>
-                    <span className="text-xs ml-2">{sourceExpanded ? '▲' : '▼'}</span>
+                    <span className={`text-xs ml-3 flex-shrink-0 ${theme.secondaryText}`}>{sourceExpanded ? '▲' : '▼'}</span>
                   </button>
                   {sourceExpanded && (
-                    <div className={`${sourceStyle.bg} px-4 py-3 max-h-64 overflow-y-auto`}>
+                    <div className="bg-white/60 px-4 py-3.5 max-h-64 overflow-y-auto border-t border-paper-flow-border/20">
                       {sourceText ? (
-                        <p className={`text-xs leading-relaxed whitespace-pre-wrap ${sourceStyle.text} opacity-90`}>
+                        <p className={`text-xs leading-[1.75] whitespace-normal ${theme.secondaryText}`}>
                           {sourceText}
                         </p>
                       ) : (
-                        <p className={`text-xs italic ${sourceStyle.text} opacity-70`}>
+                        <p className={`text-xs italic ${theme.secondaryText} opacity-70`}>
                           Source text not available for this project.
                         </p>
                       )}
