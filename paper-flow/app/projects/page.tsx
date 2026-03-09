@@ -51,7 +51,12 @@ function ProjectsContent() {
               alt="Paper Flow"
               className="h-12 w-auto rounded-xl"
             />
-            <h1 className="text-2xl font-bold text-white">Paper Flow</h1>
+            <div className="flex flex-col gap-0.5">
+              <h1 className="text-2xl font-bold text-white">Paperflow</h1>
+              <p className="text-sm text-white/70">
+                Flow into your presentation.
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-4">
             {user?.photoURL && (

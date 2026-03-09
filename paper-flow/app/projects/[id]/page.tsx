@@ -233,15 +233,6 @@ function ProjectEditorContent() {
           </div>
         </div>
         <p className="mt-2 text-sm text-white/70">
-          Rearrange nodes by dragging; disconnect edges with{' '}
-          <kbd className="rounded border border-white/30 bg-white/10 px-1.5 py-0.5 font-mono text-xs">
-            Delete
-          </kbd>
-          /{' '}
-          <kbd className="rounded border border-white/30 bg-white/10 px-1.5 py-0.5 font-mono text-xs">
-            Backspace
-          </kbd>
-          .
         </p>
       </header>
 
