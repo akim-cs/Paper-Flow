@@ -569,10 +569,13 @@ export default function SlidesFlow({ slides, onSlidesChange, config, sections }:
                 <ul className="px-4 py-3 space-y-2.5 list-none">
                   <HelpPopoverItem><strong className="text-paper-flow-text font-medium">Drag</strong> a node to reorder the node sequence.</HelpPopoverItem>
                   <HelpPopoverItem><strong className="text-paper-flow-text font-medium">Click ▼</strong> to expand and edit the title or talking points in markdown.</HelpPopoverItem>
-                  <HelpPopoverItem><strong className="text-paper-flow-text font-medium">Click ⊕</strong> to insert a new node to the left in the sequence.</HelpPopoverItem>
+                  <HelpPopoverItem><strong className="text-paper-flow-text font-medium">Click ⊕</strong> to insert a new node to the right in the sequence.</HelpPopoverItem>
                   <HelpPopoverItem><strong className="text-paper-flow-text font-medium">Click ×</strong> to delete the node.</HelpPopoverItem>
                   <HelpPopoverItem><strong className="text-paper-flow-text font-medium">Select</strong> a node/edge and press <kbd className={kbdClass}>Delete</kbd> or <kbd className={kbdClass}>Backspace</kbd> to remove it.</HelpPopoverItem>
                   <HelpPopoverItem><strong className="text-paper-flow-text font-medium">Click + Drag</strong> node handles to create new edges.</HelpPopoverItem>
+                  <HelpPopoverItem><strong className="text-paper-flow-text font-medium">Click the title</strong> to edit it directly without expanding the node.</HelpPopoverItem>
+                  <HelpPopoverItem><strong className="text-paper-flow-text font-medium">Click Sources</strong> in an expanded node to view per-bullet paper citations (shown when citations are available).</HelpPopoverItem>
+                  <HelpPopoverItem><strong className="text-paper-flow-text font-medium">Click the ⓘ badge</strong> next to a bullet to see the paper section, heading, page number, and source excerpt.</HelpPopoverItem>
                   {config && (
                     <HelpPopoverItem><strong className="text-paper-flow-text font-medium">Click</strong> <kbd className={kbdClass}>View Transcript</kbd> on an expanded node to generate or view speaker notes.</HelpPopoverItem>
                   )}
