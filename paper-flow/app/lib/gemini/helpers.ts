@@ -411,9 +411,18 @@ export async function runAttributionFallback(
 export async function generateTranscript(
   slides: Slide[],
   slideIndex: number,
-  config: PresentationConfig
+  config: PresentationConfig,
+  options?: { userInstructions?: string }
 ): Promise<string> {
-  const prompt = TRANSCRIPT_PROMPT(slides, slideIndex, config.audienceLevel, config.researcherType);
+  const userInstructions =
+    options?.userInstructions?.trim() || undefined;
+  const prompt = TRANSCRIPT_PROMPT(
+    slides,
+    slideIndex,
+    config.audienceLevel,
+    config.researcherType,
+    userInstructions ?? null
+  );
   const transcript = await geminiText(prompt);
 
   if (!transcript) {

@@ -337,7 +337,11 @@ export default function SlidesFlow({ slides, onSlidesChange, config, sections }:
   }, [nodes]);
 
   const handleGenerateTranscript = useCallback(
-    async (slideId: string) => {
+    async (
+      slideId: string,
+      options?: { userInstructions?: string },
+      onSuccess?: () => void
+    ) => {
       if (!config) return;
 
       // Get all current slides (with their existing transcripts if any)
@@ -354,15 +358,26 @@ export default function SlidesFlow({ slides, onSlidesChange, config, sections }:
       }));
 
       try {
+        const body: {
+          slides: Slide[];
+          slideIndex: number;
+          audienceLevel: PresentationConfig['audienceLevel'];
+          researcherType: PresentationConfig['researcherType'];
+          userInstructions?: string;
+        } = {
+          slides: allSlides,
+          slideIndex,
+          audienceLevel: config.audienceLevel,
+          researcherType: config.researcherType,
+        };
+        if (options?.userInstructions?.trim()) {
+          body.userInstructions = options.userInstructions.trim().slice(0, 800);
+        }
+
         const response = await fetch('/api/generate-transcript', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            slides: allSlides,
-            slideIndex: slideIndex,
-            audienceLevel: config.audienceLevel,
-            researcherType: config.researcherType,
-          }),
+          body: JSON.stringify(body),
         });
 
         if (!response.ok) {
@@ -386,6 +401,7 @@ export default function SlidesFlow({ slides, onSlidesChange, config, sections }:
           ...prev,
           generatingSlideId: null,
         }));
+        onSuccess?.();
       } catch (error) {
         console.error('Error generating transcript:', error);
         setTranscriptPanelState((prev) => ({

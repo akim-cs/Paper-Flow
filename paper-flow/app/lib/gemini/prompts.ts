@@ -250,7 +250,8 @@ export const TRANSCRIPT_PROMPT = (
   slides: Array<{ id: string; title: string; est_time: number; contentMarkdown: string; transcript?: string }>,
   slideIndex: number,
   audienceLevel: 'beginner' | 'intermediate' | 'expert',
-  researcherType: 'author' | 'academic'
+  researcherType: 'author' | 'academic',
+  userInstructions?: string | null
 ) => {
   const currentSlide = slides[slideIndex];
   const isFirst = slideIndex === 0;
@@ -332,6 +333,14 @@ Generate a transcript for the current slide ONLY.
 IMPORTANT: Do NOT include the slide title or metadata headers in your output. The UI already displays the title, time, and audience level separately.
 
 Output ONLY the natural paragraph transcript text - no headers, no metadata, just the spoken content.
+${userInstructions && userInstructions.trim()
+  ? `
+
+# ADDITIONAL USER INSTRUCTIONS (you must follow these)
+The user has requested the following for this slide's transcript. Follow these instructions when generating the transcript.
+
+${userInstructions.trim()}`
+  : ''}
 
 # CURRENT SLIDE TO GENERATE TRANSCRIPT FOR
 

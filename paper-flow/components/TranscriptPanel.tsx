@@ -17,7 +17,7 @@ type TranscriptPanelProps = {
   activeSlideId: string | null;
   generatingSlideId: string | null;
   onSelectSlide: (slideId: string) => void;
-  onGenerateTranscript: (slideId: string) => void;
+  onGenerateTranscript: (slideId: string, options?: { userInstructions?: string }, onSuccess?: () => void) => void;
   onClose: () => void;
   onUpdateEstTime: (slideId: string, estTime: number) => void;
   onUpdateTranscript: (slideId: string, transcript: string) => void;
@@ -43,6 +43,8 @@ const SOURCE_SECTION_STYLES: Record<string, { bg: string; text: string; border: 
   conclusion:   { bg: 'bg-teal-50',   text: 'text-teal-700',   border: 'border-teal-200',   headerBg: 'bg-teal-100' },
 };
 
+const MAX_INSTRUCTIONS_LENGTH = 800;
+
 export default function TranscriptPanel({
   isOpen,
   slides,
@@ -60,6 +62,9 @@ export default function TranscriptPanel({
   const [isResizing, setIsResizing] = useState(false);
   const [sourceExpanded, setSourceExpanded] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
+
+  // Per-slide instructions for transcript generation (isolated per slide, cleared after successful regenerate)
+  const [regenerateInstructionsBySlide, setRegenerateInstructionsBySlide] = useState<Record<string, string>>({});
 
   // Local est_time slider state — synced from the active slide
   const activeSlideEstTime = slides.find((s) => s.id === activeSlideId)?.est_time ?? 2;
@@ -234,6 +239,29 @@ export default function TranscriptPanel({
                     Regenerate transcript to apply new timing
                   </p>
                 )}
+                {/* Instructions for transcript (optional) — per slide, cleared after successful regenerate */}
+                <div className="mt-3">
+                  <label className={`block text-xs font-medium ${theme.secondaryText} mb-1`}>
+                    Instructions for this transcript (optional)
+                  </label>
+                  <textarea
+                    value={regenerateInstructionsBySlide[activeSlide.id] ?? ''}
+                    onChange={(e) => {
+                      const val = e.target.value.slice(0, MAX_INSTRUCTIONS_LENGTH);
+                      setRegenerateInstructionsBySlide((prev) => ({
+                        ...prev,
+                        [activeSlide.id]: val,
+                      }));
+                    }}
+                    maxLength={MAX_INSTRUCTIONS_LENGTH}
+                    placeholder="e.g. Place emphasis on the importance of..."
+                    rows={2}
+                    className={`w-full rounded-lg border border-paper-flow-border bg-white px-3 py-2 text-sm ${theme.titleText} placeholder:${theme.secondaryTextAlt} resize-y min-h-[60px]`}
+                  />
+                  <p className={`text-xs mt-0.5 ${theme.secondaryTextAlt}`}>
+                    {(regenerateInstructionsBySlide[activeSlide.id] ?? '').length}/{MAX_INSTRUCTIONS_LENGTH} characters
+                  </p>
+                </div>
               </div>
             );
           })()}
@@ -269,7 +297,20 @@ export default function TranscriptPanel({
               {/* Regenerate Button */}
               <div className="mt-6 pt-4 border-t border-paper-flow-border">
                 <button
-                  onClick={() => onGenerateTranscript(activeSlide.id)}
+                  onClick={() => {
+                    const instructions = (regenerateInstructionsBySlide[activeSlide.id] ?? '').trim() || undefined;
+                    onGenerateTranscript(
+                      activeSlide.id,
+                      instructions ? { userInstructions: instructions } : undefined,
+                      () => {
+                        setRegenerateInstructionsBySlide((prev) => {
+                          const next = { ...prev };
+                          delete next[activeSlide.id];
+                          return next;
+                        });
+                      }
+                    );
+                  }}
                   className="w-full px-4 py-2.5 rounded-lg bg-paper-flow-border text-white hover:bg-paper-flow-text transition-all text-sm font-medium shadow-sm hover:shadow-md"
                 >
                   Regenerate Transcript
@@ -313,7 +354,20 @@ export default function TranscriptPanel({
                 No transcript generated yet
               </p>
               <button
-                onClick={() => onGenerateTranscript(activeSlide.id)}
+                onClick={() => {
+                  const instructions = (regenerateInstructionsBySlide[activeSlide.id] ?? '').trim() || undefined;
+                  onGenerateTranscript(
+                    activeSlide.id,
+                    instructions ? { userInstructions: instructions } : undefined,
+                    () => {
+                      setRegenerateInstructionsBySlide((prev) => {
+                        const next = { ...prev };
+                        delete next[activeSlide.id];
+                        return next;
+                      });
+                    }
+                  );
+                }}
                 className="px-6 py-3 rounded-lg bg-paper-flow-border text-white hover:bg-paper-flow-text transition-all text-sm font-medium shadow-md hover:shadow-lg"
               >
                 Generate Transcript
